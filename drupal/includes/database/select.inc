@@ -1,4 +1,5 @@
 <?php
+// $Id: select.inc,v 1.59 2010/12/31 20:43:43 webchick Exp $
 
 /**
  * @ingroup database
@@ -414,7 +415,7 @@ interface SelectQueryInterface extends QueryConditionInterface, QueryAlterableIn
    * @param $start
    *   The first record from the result set to return. If NULL, removes any
    *   range directives that are set.
-   * @param $length
+   * @param $limit
    *   The number of records to return from the result set.
    * @return SelectQueryInterface
    *   The called object.
@@ -1439,8 +1440,9 @@ class SelectQuery extends Query implements SelectQueryInterface {
   }
 
   public function __toString() {
-    // Create a sanitized comment string to prepend to the query.
-    $comments = $this->connection->makeComment($this->comments);
+
+    // Create a comments string to prepend to the query.
+    $comments = (!empty($this->comments)) ? '/* ' . implode('; ', $this->comments) . ' */ ' : '';
 
     // SELECT
     $query = $comments . 'SELECT ';

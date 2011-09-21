@@ -173,8 +173,14 @@ class CRM_Event_DAO_Event extends CRM_Core_DAO
     /**
      * Is this a PAID event? If true, one or more fee amounts must be set and a Payment Processor must be configured for Online Event Registration.
      *
-     * @var boolean
+     * @var text
      */
+    public $is_fully_booked;
+    /**
+     * Is this a PAID event? If true, one or more fee amounts must be set and a Payment Processor must be configured for Online Event Registration.
+     *
+     * @var boolean
+     */ 
     public $is_monetary;
     /**
      * Contribution type assigned to paid event registrations for this event. Required if is_monetary is true.
@@ -554,6 +560,10 @@ class CRM_Event_DAO_Event extends CRM_Core_DAO
                     'title' => ts('Event Information') ,
                     'rows' => 4,
                     'cols' => 60,
+                ) ,
+                'is_fully_booked' => array(
+                    'name' => 'is_fully_booked',
+                    'type' => CRM_Utils_Type::T_BOOLEAN,
                 ) ,
                 'is_monetary' => array(
                     'name' => 'is_monetary',

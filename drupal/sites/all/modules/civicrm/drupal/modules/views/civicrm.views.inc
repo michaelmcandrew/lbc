@@ -85,6 +85,8 @@ function civicrm_views_data() {
     require_once 'CRM/Core/Error.php';
     require_once 'CRM/Contact/BAO/Contact.php';
     require_once 'CRM/Event/BAO/Query.php';
+    require_once 'CRM/Event/BAO/Participant.php'; //edburton
+    
     //------------------------------------------------------
     // CiviCRM Contacts Views Table
     //------------------------------------------------------
@@ -1651,6 +1653,24 @@ function civicrm_views_data() {
                                                                              'handler' => 'views_handler_sort',
                                                                              ),
                                                              );
+                                                             
+    //BOOLEAN : IS THE EVENT FULLY BOOKED //edburton
+    $data['civicrm_event']['is_fully_booked'] = array(
+                                                             'title' => t('Is the event fully booked?'),
+                                                             'help' => t('Is the event fully booked?'),
+                                                             'field' => array(
+                                                                              'handler' => 'views_handler_field_boolean',
+                                                                              'click sortable' => TRUE,
+                                                                              ),
+
+                                                             'filter' => array(
+                                                                               'handler' => 'views_handler_filter_boolean_operator',
+                                                                               ),
+
+                                                             'sort' => array(
+                                                                             'handler' => 'views_handler_sort',
+                                                                             ),
+                                                             );                                                          
 
     //EVENT ONLINE REGISTRATION START DATE
     $data['civicrm_event']['registration_start_date'] = array(
@@ -5888,24 +5908,26 @@ function civicrm_views_add_fields( &$fields, &$data, &$skipFields, $tableName ) 
             continue;
         }
 
-        $type = CRM_Utils_Array::value( 'type', $value );
+        $type = CRM_Utils_Array::value( 'type', $value, 'String' );
 
-        $data[CRM_Utils_Array::value('name', $value)] = array(
+        $data[$value['name']] = array(
                                       'title' => $value['title'],
                                       'help'  => $value['title'],
                                       'field' => array( 
-                                                       'handler' => civicrm_get_field_handler  ( $value['type'] ),
+                                                       'handler' => civicrm_get_field_handler  ( $type ),
                                                        'click sortable' => true,
                                                         ),
                                       'sort'  => array(
-                                                       'handler' => civicrm_get_sort_handler   ( $value['type'] ),
+                                                       'handler' => civicrm_get_sort_handler   ( $type ),
                                                        ),
                                       'filter' => array(
-                                                        'handler' => civicrm_get_filter_handler( $value['type'] ),
+                                                        'handler' => civicrm_get_filter_handler( $type ),
                                                         ),
                                       );
-        //For date fields add in 6 arguments
-        if ( isset($value['type']) && $value['type'] == 4 ){
+
+        // For date fields add in 6 arguments
+        // not sure how its numeric here, but leaving it as is for now
+        if ( $type == 4 ){
             civicrm_views_add_date_arguments($data,$value);
         }
     }

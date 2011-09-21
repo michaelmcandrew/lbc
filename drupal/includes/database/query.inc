@@ -1,4 +1,5 @@
 <?php
+// $Id: query.inc,v 1.60 2010/12/31 20:43:43 webchick Exp $
 
 /**
  * @ingroup database
@@ -361,9 +362,6 @@ abstract class Query implements QueryPlaceholderInterface {
    * for easier debugging and allows you to more easily find where a query
    * with a performance problem is being generated.
    *
-   * The comment string will be sanitized to remove * / and other characters
-   * that may terminate the string early so as to avoid SQL injection attacks.
-   *
    * @param $comment
    *   The comment string to be inserted into the query.
    *
@@ -626,8 +624,9 @@ class InsertQuery extends Query {
    *   The prepared statement.
    */
   public function __toString() {
-    // Create a sanitized comment string to prepend to the query.
-    $comments = $this->connection->makeComment($this->comments);
+
+    // Create a comments string to prepend to the query.
+    $comments = (!empty($this->comments)) ? '/* ' . implode('; ', $this->comments) . ' */ ' : '';
 
     // Default fields are always placed first for consistency.
     $insert_fields = array_merge($this->defaultFields, $this->insertFields);
@@ -817,8 +816,9 @@ class DeleteQuery extends Query implements QueryConditionInterface {
    *   The prepared statement.
    */
   public function __toString() {
-    // Create a sanitized comment string to prepend to the query.
-    $comments = $this->connection->makeComment($this->comments);
+
+    // Create a comments string to prepend to the query.
+    $comments = (!empty($this->comments)) ? '/* ' . implode('; ', $this->comments) . ' */ ' : '';
 
     $query = $comments . 'DELETE FROM {' . $this->connection->escapeTable($this->table) . '} ';
 
@@ -885,8 +885,8 @@ class TruncateQuery extends Query {
    *   The prepared statement.
    */
   public function __toString() {
-    // Create a sanitized comment string to prepend to the query.
-    $comments = $this->connection->makeComment($this->comments);
+    // Create a comments string to prepend to the query.
+    $comments = (!empty($this->comments)) ? '/* ' . implode('; ', $this->comments) . ' */ ' : '';
 
     return $comments . 'TRUNCATE {' . $this->connection->escapeTable($this->table) . '} ';
   }
@@ -1112,8 +1112,9 @@ class UpdateQuery extends Query implements QueryConditionInterface {
    *   The prepared statement.
    */
   public function __toString() {
-    // Create a sanitized comment string to prepend to the query.
-    $comments = $this->connection->makeComment($this->comments);
+
+    // Create a comments string to prepend to the query.
+    $comments = (!empty($this->comments)) ? '/* ' . implode('; ', $this->comments) . ' */ ' : '';
 
     // Expressions take priority over literal fields, so we process those first
     // and remove any literal fields that conflict.

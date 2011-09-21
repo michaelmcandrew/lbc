@@ -1,3 +1,4 @@
+/* $Id: overlay-child.css,v 1.8 2011/01/03 06:53:35 webchick Exp $ */
 
 html.js {
   background: transparent !important;
@@ -47,13 +48,6 @@ html.js body {
 #overlay-title:active,
 #overlay-title:focus {
   outline: 0;
-}
-
-.overlay #skip-link {
-  margin-top: -20px;
-}
-.overlay #skip-link a {
-  color: #fff; /* This is white to contrast with the dark background behind it. */
 }
 
 #overlay-close-wrapper {

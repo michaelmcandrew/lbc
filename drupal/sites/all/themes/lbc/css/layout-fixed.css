@@ -1,0 +1,414 @@
+/**
+ * @file
+ * Layout Styling (DIV Positioning)
+ *
+ * Define CSS classes to create a table-free, 3-column, 2-column, or single
+ * column layout depending on whether blocks are enabled in the left or right
+ * columns.
+ *
+ * This layout is based on the Zen Columns layout method.
+ *   http://drupal.org/node/201428
+ *
+ * Only CSS that affects the layout (positioning) of major elements should be
+ * listed here.  Such as:
+ *   display, position, float, clear, width, height, min-width, min-height
+ *   margin, border, padding, overflow
+ */
+
+/*
+ * Body
+ */
+body {
+	font: 14px/22px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	background-color: #FFFFFF;
+	color: #000000;
+}
+
+
+
+a {
+  text-decoration: none;
+  color: #666666;
+}
+
+a:hover {
+  color: #999999;
+}
+
+h1, h2,h3,h4,h5,h6 {
+	font-weight: normal; 
+}
+
+
+
+
+
+#page-wrapper,
+.region-bottom {
+  /*
+   * If you want to make the page a fixed width and centered in the viewport,
+   * this is the standards-compliant way to do that. See also the ie6.css file
+   * for the necessary IE5/IE6quirks hack to center a div.
+   */
+  margin-left: auto;
+  margin-right: auto;
+  width: 960px;
+  background-color: white;
+}
+
+#page {
+padding: 10px;
+padding-top: 5px;
+}
+
+/*
+ * Search block
+ */
+ 
+ #block-search-form {
+ float: right;
+ }
+ 
+ input #edit-search-block-form--2 {
+ border-color: #808080;
+ }
+ 
+ input #edit-submit {
+ background-color: white;
+  }
+ 
+/*
+ * Header
+ */
+ 
+#header {
+margin: 10px;
+margin-top: 5px;
+}
+
+#header .section {
+}
+
+.region-header {
+  clear: both; /* Clear the logo */
+}
+
+#header a
+{
+color: #666666;
+text-decoration: none;
+margin-top: 0pt;
+margin-right: 10px;
+margin-bottom: 0pt;
+margin-left: 0pt;
+}
+
+#header a:hover
+{
+color: #000000;
+text-decoration: underline;
+}
+
+/*
+ * Main (container for everything else)
+ */
+#main-wrapper {
+  position: relative;
+  margin: 0px;
+}
+
+#main {
+}
+
+/*
+ * Content
+ */
+#content,
+.no-sidebars #content {
+  float: left; /* LTR */
+  width: 960px;
+  margin-left: 0; /* LTR */
+  margin-right: -960px; /* LTR */ /* Negative value of #content's width + left margin. */
+  padding: 0; /* DO NOT CHANGE. Add padding or margin to #content .section. */
+}
+
+.sidebar-first #content {
+  width: 690px;
+  margin-left: 240px; /* LTR */ /* The width of .region-sidebar-first. */
+  margin-right: -960px; /* LTR */ /* Negative value of #content's width + left margin. */
+}
+
+.sidebar-second #content {
+  width: 690px;
+  margin-left: 240px; /* LTR */ /* The width of .region-sidebar-first. */
+  margin-right: -960px; /* LTR */ /* Negative value of #content's width + left margin. */
+}
+
+.two-sidebars #content {
+  width: 690px;
+  margin-left: 240px; /* LTR */ /* The width of .region-sidebar-first. */
+  margin-right: -960px; /* LTR */ /* Negative value of #content's width + left margin. */
+}
+
+#content .section {
+  margin: 0;
+  padding: 0;
+  padding-right: 200px;
+}
+
+/*
+ * Logo
+ */
+
+#secondary-menu {
+display: none;
+}
+
+div #name-and-slogan {
+display: none;
+} 
+ 
+ 
+div #logo {
+margin: 0;
+background-color: white;
+} 
+ 
+a #logo {
+	padding-left: 0;
+	padding-top: 15px;
+	padding-bottom: 20px;
+	padding-right: 88px;
+	border-style: solid;
+	border-color: #dddddd;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 0px;
+	border-right-width: 0px;
+}
+
+#logo img
+{
+vertical-align: bottom;
+padding-right: 15px;
+}
+
+/*
+ * Navigation
+ */
+#navigation {
+  float: left; /* LTR */
+  width: 920px;
+  margin-left: 10px; /* LTR */
+  margin-right: -100%; /* LTR */ /* Negative value of #navigation's width + left margin. */
+  padding: 0; /* DO NOT CHANGE. Add padding or margin to #navigation .section. */
+  height: 430px; /* The navigation can have any arbritrary height. We picked one
+                    that is the line-height plus 1em: 1.3 + 1 = 2.3
+                    Set this to the same value as the margin-top below. */
+}
+
+.with-navigation #content,
+.with-navigation .region-sidebar-first,
+.with-navigation .region-sidebar-second {
+  margin-top: 430px; /* Set this to the same value as the navigation height above. */
+}
+
+.with-navigation .region-sidebar-first {
+  margin-top: 485px; /* Set this to the same value as the navigation height above. */
+}
+
+.with-navigation .region-sidebar-second {
+  margin-top: 412px; /* Set this to the same value as the navigation height above. */
+}
+
+#navigation .section {
+	margin: 0px;
+}
+
+#navigation ul li a
+{
+float: right;
+font-size: 1.6em;
+display: block;
+color: black;
+text-decoration: none;
+padding-top: 60px;
+padding-right: 17px;
+padding-bottom: 0px;
+padding-left: 17px;
+height: 40px;
+}
+
+
+#navigation ul li a:hover
+{
+background-color: #EEEEEE;
+}
+
+div #block-ddblock-2 {
+padding-top: 15px;
+}
+
+
+
+/*
+ * First sidebar
+ */
+ 
+ .region-sidebar-first ul
+{
+margin: 0px;
+padding: 0px;
+}
+
+.region-sidebar-first ul li
+{
+margin: 0px;
+list-style-type: none;
+list-style-image: none;
+}
+
+.region-sidebar-first ul li a
+{
+font-size: 1.2em;
+padding-left: 15px;
+padding-top: 10px;
+padding-bottom: 10px;
+padding-right: 5px;
+color: black;
+display: block;
+}
+
+.region-sidebar-first ul li a:hover
+{
+background-color: #CCCCCC;
+}
+
+.region-sidebar-first p
+{
+margin: 15px;
+}
+
+.region-sidebar-first {
+  float: left; /* LTR */
+  width: 210px;
+  margin: 10px; /* LTR */
+  margin-right: -240px; /* LTR */ /* Negative value of .region-sidebar-first's width + left margin. */
+  padding: 0; /* DO NOT CHANGE. Add padding or margin to .region-sidebar-first .section. */
+  background-color: #EEEEEE;
+}
+
+.region-sidebar-first .section {
+  margin: 0; /* LTR */
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+/*
+ * Second sidebar
+ */
+ 
+ .region-sidebar-second 
+{
+margin: 0px;
+padding: 0px;
+}
+
+.region-sidebar-second a
+{
+font-size: 1.2em;
+padding-left: 15px;
+padding-top: 5px;
+padding-bottom: 5px;
+padding-right: 0px;
+color: #666666;
+display: block;
+}
+
+.region-sidebar-second a:hover
+{
+  color: #999999;
+//background-color: #CCCCCC;
+}
+
+.region-sidebar-second p
+{
+margin: 15px;
+}
+
+.region-sidebar-second {
+  float: left; /* LTR */
+  width: 210px;
+  margin: 10px; /* LTR */
+  margin-right: -240px; /* LTR */ /* Negative value of .region-sidebar-seconds's width + left margin. */
+  padding: 0; /* DO NOT CHANGE. Add padding or margin to .region-sidebar-seconds .section. */
+  //background-color: #EEEEEE;
+}
+
+.region-sidebar-second .section {
+  margin: 0; /* LTR */
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+
+/*
+ * Footer
+ */
+
+#footer {
+margin: 10px;
+}
+
+#footer .section {
+}
+
+.region-footer {
+height: 120px;
+}
+
+.region-footer .content{
+border-top-width: 2px;
+border-top-style: solid;
+border-top-color: #dddddd;
+padding-top: 0px;
+padding-bottom: 0px;
+}
+
+/*
+ * Page bottom
+ */
+.region-bottom /* See also the #page-wrapper declaration above that this div shares. */ {
+}
+
+/*
+ * Prevent overflowing content
+ */
+#header,
+#content,
+#navigation,
+.region-sidebar-first,
+.region-sidebar-second,
+.region-footer,
+.region-bottom {
+  overflow: visible;
+  word-wrap: break-word; /* A very nice CSS3 property */
+}
+
+/*
+ * If a div.clearfix doesn't have any content after it and its bottom edge
+ * touches the bottom of the viewport, Firefox and Safari will mistakenly
+ * place several pixels worth of space between the bottom of the div and the
+ * bottom of the viewport. Uncomment this CSS property to fix this.
+ * Note: with some over-large content, this property might cause scrollbars
+ * to appear on the #page-wrapper div.
+ */
+/*
+#page-wrapper {
+  overflow-y: hidden;
+}
+*/
