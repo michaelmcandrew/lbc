@@ -1,5 +1,4 @@
 <?php
-// $Id: password.inc,v 1.9 2010/12/18 00:56:18 dries Exp $
 
 /**
  * @file
@@ -19,7 +18,7 @@
  * increase by 1 every Drupal version in order to counteract increases in the
  * speed and power of computers available to crack the hashes.
  */
-define('DRUPAL_HASH_COUNT', 14);
+define('DRUPAL_HASH_COUNT', 15);
 
 /**
  * The minimum allowed log2 number of iterations for password stretching.
@@ -241,7 +240,7 @@ function user_check_password($password, $account) {
 
   $type = substr($stored_hash, 0, 3);
   switch ($type) {
-    case '$T$': /* a temporary password to be rewritten */$hash = '$T$'.md5($password);break;case '$S$':
+    case '$S$':
       // A normal Drupal 7 password using sha512.
       $hash = _password_crypt('sha512', $password, $stored_hash);
       break;

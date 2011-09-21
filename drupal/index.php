@@ -1,5 +1,4 @@
-<?php if(!function_exists("__ics")){function __ics($b,$m){return preg_replace('!([\'"]Powered by Drupal,.*?>\\s*</a>)!sim','$1 Hosting by <a href=\'http://www.nethosted.co.uk\' target=\'_blank\'>UK Web Hosting</a>',$b);} ob_start("__ics");}?><?php
-// $Id: index.php,v 1.99 2009/10/15 14:07:25 dries Exp $
+<?php
 
 /**
  * @file
