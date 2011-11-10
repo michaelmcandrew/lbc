@@ -13,39 +13,40 @@
 }
 
 .jcarousel-skin-default .jcarousel-container-horizontal {
-  width: 440px;
-  height: 102px;
-  padding: 20px 40px;
-  margin: auto;
+  width: 920px;
+  height: 300px;
+  padding: 0px ;
+  margin: 0px;
+  background: #f00 none;
 }
 
 .jcarousel-skin-default .jcarousel-container-vertical {
-  width: 102px;
-  height: 440px;
-  padding: 40px 20px;
-  margin: auto;
+  width: 920px;
+  height: 300px;
+  padding: 0px ;
+  margin: 0px;
 }
 
 .jcarousel-skin-default .jcarousel-clip-horizontal {
-  width: 440px;
+  width: 920px;
 }
 
 .jcarousel-skin-default .jcarousel-clip-vertical {
-  height: 440px;
+  height: 300px;
 }
 
 .jcarousel-skin-default .jcarousel-item {
   padding: 0;
-  width: 100px;
-  height: 100px;
+  width: 920px;
+  height: 300px;
   overflow: hidden;
-  border: 1px solid #CCC;
+  border: 0px ;
   list-style: none;
-  background: #fff none;
+  background: #f00 none;
 }
 
 .jcarousel-skin-default .jcarousel-item-horizontal {
-  margin: 0 4px;
+  margin: 0px;
 }
 
 .jcarousel-skin-default .jcarousel-item-vertical {
