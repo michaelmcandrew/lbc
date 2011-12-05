@@ -1,0 +1,91 @@
+<?php
+/**
+ * @file
+ * A block containing a link to the parent of a well formed path
+ */
+ 
+ /**
+ * Implements hook_help.
+ *
+ * Displays help and module information.
+ *
+ * @param path 
+ *   Which path of the site we're using to display help
+ * @param arg 
+ *   Array that holds the current path as returned from arg() function
+ */
+function simpleuplink_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#simpleuplink":
+      return '<p>'.  t("A block containing a link to the parent of a well formed path") .'</p>';
+      break;
+  }
+}
+ 
+ /**
+ * Implements hook_block_info().
+ */
+function simpleuplink_block_info() {
+  $blocks['simpleuplink'] = array(
+    'info' => t('Simple Up Link'), //The name that will appear in the block list.
+    'cache' => DRUPAL_CACHE_PER_ROLE, //Default
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function simpleuplink_menu() {
+  $items = array();  
+
+  $items['admin/config/content/simpleuplink'] = array(
+    'title' => 'Simple Up Link',
+    'description' => 'Configuration for Simple Up Link',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('simpleuplink_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  
+  return $items;
+}  
+
+function simpleuplink_form($form, &$form_state) {
+  $form['simpleuplink_depth'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Minumum Depth'),
+    '#default_value' => variable_get('simpleuplink_depth', 3),
+    '#size' => 2,
+    '#maxlength' => 2,
+    '#description' => t('Minumum navigation depth to display link'),
+    '#required' => TRUE,
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_block_view().
+ * 
+ * Prepares the contents of the block.
+ */
+function simpleuplink_block_view($delta = '') {
+  $block = array();
+  switch($delta){
+    case 'simpleuplink':
+	  $menuParent = menu_get_active_trail();
+	  $depth = count($menuParent);
+	  $mindepth = variable_get('simpleuplink_depth', 3);
+	  if ($depth > $mindepth) {
+		  $title = $menuParent[$depth - 2]['title'];
+		  $path = isset($_GET['q']) ? $_GET['q'] : '<front>';
+		  $link = url($path, array('absolute' => true));
+		  $link = strrev($link);
+		  $link = strstr($link, '/');
+		  $link = strrev($link);
+		  $block['content'] = "<a class=\"uplink\" href=$link>$title</a>";
+	  }
+  }
+  return $block;
+}
+?>

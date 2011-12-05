@@ -193,10 +193,12 @@ a #logo
 	padding:10px 0 6px
 }
 
-.region-sidebar-first li a.uplink
+.region-sidebar-first a.uplink
 {
+	color:#000;
 	font-size:1.4em;
-	margin-left:-26px
+	display: block;
+	padding:10px 0 6px
 }
 
 .region-footer .content
@@ -217,7 +219,7 @@ a #logo
 	border-bottom:solid 2px #000
 }
 
-.region-sidebar-first li a.active,.region-sidebar-first li a:hover
+.region-sidebar-first li a.active,.region-sidebar-first li a:hover, a.uplink:hover
 {
 	border-bottom:solid 2px #000;
 	padding:10px 0 4px
