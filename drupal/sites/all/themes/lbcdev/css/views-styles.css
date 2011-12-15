@@ -1,0 +1,23 @@
+/**
+ * @file
+ * Views Styling
+ */
+#navigation ul.jcarousel  {
+	float: none;
+}
+#navigation ul.jcarousel li, 
+#navigation .content .jcarousel li {
+	padding: 0;
+}
+.carousel {
+	width: 100%;
+}
+.jcarousel-container,
+.jcarousel-clip-horizontal {
+	width: 920px;
+	height: 300px;
+}
+.jcarousel-item {
+	height: 100%;
+}
+
