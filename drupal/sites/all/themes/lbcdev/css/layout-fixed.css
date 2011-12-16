@@ -198,6 +198,7 @@ a #logo
 	font-size:1.4em;
 	display: block;
 	color: #000;
+	padding: 10px 0 6px;
 }
 .region-sidebar-first a.uplink:hover
 {
