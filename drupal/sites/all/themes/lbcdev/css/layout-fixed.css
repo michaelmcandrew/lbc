@@ -196,7 +196,8 @@ a #logo
 .region-sidebar-first a.uplink
 {
 	font-size:1.4em;
-	margin-left:-26px
+	margin-left:-26px;
+	display: block;
 }
 
 .region-footer .content
