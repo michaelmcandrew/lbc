@@ -199,7 +199,10 @@ a #logo
 	display: block;
 	color: #000;
 }
-
+.region-sidebar-first a.uplink:hover
+{
+	border-bottom:solid 2px #000;
+}
 .region-footer .content
 {
 	border-top-color:#ccc;
@@ -219,8 +222,7 @@ a #logo
 }
 
 .region-sidebar-first li a.active,
-.region-sidebar-first li a:hover,
-.region-sidebar-first a.uplink:hover
+.region-sidebar-first li a:hover
 {
 	border-bottom:solid 2px #000;
 	padding:10px 0 4px
