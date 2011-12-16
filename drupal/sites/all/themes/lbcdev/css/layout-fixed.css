@@ -205,6 +205,7 @@ a #logo
 .region-sidebar-first a.uplink:hover
 {
 	border-bottom:solid 2px #000;
+	padding: 10px 0 4px;
 }
 .region-footer .content
 {
