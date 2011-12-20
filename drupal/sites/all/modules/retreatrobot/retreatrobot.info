@@ -1,0 +1,5 @@
+name = Retreat Robot
+description = A module aiding the maintenance of weekly CiviCRM events
+package = LBC development
+;dependencies[] = civicrm
+core = 7.x
