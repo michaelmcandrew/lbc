@@ -183,7 +183,9 @@ a #logo
 {
 	font-size:1.4em;
 }
-
+#block-menu-block-1 {
+	margin-top: 5px;
+}
 
 .region-sidebar-first li a
 {
@@ -195,12 +197,16 @@ a #logo
 
 .region-sidebar-first a.uplink
 {
-	color:#000;
 	font-size:1.4em;
 	display: block;
-	padding:10px 0 6px
+	color: #000;
+	padding: 10px 0 6px;
 }
-
+.region-sidebar-first a.uplink:hover
+{
+	border-bottom:solid 2px #000;
+	padding: 10px 0 4px;
+}
 .region-footer .content
 {
 	border-top-color:#ccc;
@@ -219,13 +225,14 @@ a #logo
 	border-bottom:solid 2px #000
 }
 
-.region-sidebar-first li a.active,.region-sidebar-first li a:hover, a.uplink:hover
+.region-sidebar-first li a.active,
+.region-sidebar-first li a:hover
 {
 	border-bottom:solid 2px #000;
 	padding:10px 0 4px
 }
 
-#block-search-form,#navigation ul
+#block-search-form, #navigation ul
 {
 	float:right
 }
