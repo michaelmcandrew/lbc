@@ -1,0 +1,35 @@
+<?php
+/**
+ * @file
+ * A block containing a link to the parent of a well formed path
+ */
+ 
+ /**
+ * Implements hook_help.
+ *
+ * Displays help and module information.
+ *
+ * @param path 
+ *   Which path of the site we're using to display help
+ * @param arg 
+ *   Array that holds the current path as returned from arg() function
+ */
+function LBChooks_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#LBChooks":
+      return '<p>'.  t("A module hooking custom functionality for the London Buddhist Centre") .'</p>';
+      break;
+  }
+}
+ 
+ /**
+ * Implements hook_block_info().
+ */
+function LBChooks_block_info() {
+  $blocks['LBChooks'] = array(
+    'info' => t('LBC hooks'), //The name that will appear in the block list.
+    'cache' => DRUPAL_CACHE_PER_ROLE, //Default
+  );
+  return $blocks;
+}
+?>

@@ -1,0 +1,5 @@
+name = LBC Hooks
+description = Custom functionality for the London Buddhist Centre
+package = LBC development
+;dependencies[] = civicrm
+core = 7.x
