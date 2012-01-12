@@ -32,4 +32,18 @@ function LBChooks_block_info() {
   );
   return $blocks;
 }
+
+function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  error_log("--------------------------------", 0);
+  error_log($op, 0);
+  error_log($objectName, 0);
+  error_log("--------------------------------", 0);
+  if ($op != 'edit' || $objectName != 'Event') {
+    return;
+  }
+  require_once 'api/api.php';
+  $event = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3)); 
+  error_log(print_r($event,true), 0);
+  error_log("--------------------------------", 0);
+}
 ?>
