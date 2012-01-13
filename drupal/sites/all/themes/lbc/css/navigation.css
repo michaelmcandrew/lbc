@@ -32,6 +32,8 @@ li a.active {
 }
 
 .region-navigation {
+	clear: left;
+	float: left;
 }
 
 /*

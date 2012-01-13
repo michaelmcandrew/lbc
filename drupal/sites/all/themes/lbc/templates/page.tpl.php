@@ -57,6 +57,7 @@
  * - $page['highlighted']: Items for the highlighted content region.
  * - $page['content']: The main content of the current page.
  * - $page['sidebar_first']: Items for the first sidebar.
+ * - $page['sidebar_second']: Items for the first sidebar.
  * - $page['header']: Items for the header region.
  * - $page['footer']: Items for the footer region.
  * - $page['bottom']: Items to appear at the bottom of the page below the footer.
@@ -158,6 +159,8 @@
     <?php endif; ?>
 
     <?php print render($page['sidebar_first']); ?>
+    
+    <?php print render($page['sidebar_second']); ?>
 
   </div></div><!-- /#main, /#main-wrapper -->
 

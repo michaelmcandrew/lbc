@@ -1,0 +1,49 @@
+<?php
+/**
+ * @file
+ * A block containing a link to the parent of a well formed path
+ */
+ 
+ /**
+ * Implements hook_help.
+ *
+ * Displays help and module information.
+ *
+ * @param path 
+ *   Which path of the site we're using to display help
+ * @param arg 
+ *   Array that holds the current path as returned from arg() function
+ */
+function LBChooks_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#LBChooks":
+      return '<p>'.  t("A module hooking custom functionality for the London Buddhist Centre") .'</p>';
+      break;
+  }
+}
+ 
+ /**
+ * Implements hook_block_info().
+ */
+function LBChooks_block_info() {
+  $blocks['LBChooks'] = array(
+    'info' => t('LBC hooks'), //The name that will appear in the block list.
+    'cache' => DRUPAL_CACHE_PER_ROLE, //Default
+  );
+  return $blocks;
+}
+
+function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  error_log("--------------------------------", 0);
+  error_log($op, 0);
+  error_log($objectName, 0);
+  error_log("--------------------------------", 0);
+  if ($op != 'edit' || $objectName != 'Event') {
+    return;
+  }
+  require_once 'api/api.php';
+  $event = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3)); 
+  error_log(print_r($event,true), 0);
+  error_log("--------------------------------", 0);
+}
+?>

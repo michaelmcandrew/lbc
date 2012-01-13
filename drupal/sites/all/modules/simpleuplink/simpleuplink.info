@@ -1,0 +1,4 @@
+name = Simple Up Link
+description = A block containing a link to the parent of a well formed path
+package = LBC development
+core = 7.x
