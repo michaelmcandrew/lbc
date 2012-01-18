@@ -34,16 +34,30 @@ function LBChooks_block_info() {
 }
 
 function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
-  error_log("--------------------------------", 0);
-  error_log($op, 0);
-  error_log($objectName, 0);
-  error_log("--------------------------------", 0);
-  if ($op != 'edit' || $objectName != 'Event') {
+  if ($op != 'edit' || $objectName != 'Event')
     return;
-  }
   require_once 'api/api.php';
-  $event = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3)); 
-  error_log(print_r($event,true), 0);
+  $result = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3)); 
+  if ($result['is_error']!=0)
+  	return;
+  $event=$result['values'][$objectId];
+  if ($event['template_title']=='Create Solitary Retreats')
+  	RecursivelyChopEventIntoWeeks($event);
+}
+
+function RecursivelyChopEventIntoWeeks(&$event) {
+  error_log("--------------------------------", 0);
+  $start_date=date_create($event['start_date']);
+  $end_date=date_create($event['end_date']);
+  $duration=$start_date->diff($end_date);
+  $days=$duration->d;
+  error_log('There are '.$days.' days in this retreat', 0);
+  if ($days>7)
+  	error_log('and hence it should be segmented', 0);
+  else
+  	error_log('which is a week or less', 0);
+  error_log("--------------------------------", 0);
+  error_log('Event '.print_r($event,true), 0);
   error_log("--------------------------------", 0);
 }
 ?>
