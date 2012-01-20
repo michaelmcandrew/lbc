@@ -34,6 +34,9 @@ function LBChooks_block_info() {
 }
 
 function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+  error_log('> '.$op.' '.$objectName, 0);
+  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
   if ($op != 'edit' || $objectName != 'Event')
     return;
   require_once 'api/api.php';
@@ -47,17 +50,25 @@ function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
 
 function RecursivelyChopEventIntoWeeks(&$event) {
   error_log("--------------------------------", 0);
-  $start_date=date_create($event['start_date']);
-  $end_date=date_create($event['end_date']);
+  $event_id=$event['id'];
+  $end_date_text=$event['end_date'];
+  $end_date=date_create($end_date_text);
+  $start_date_text=$event['start_date'];
+  $start_date=date_create($start_date_text);
   $duration=$start_date->diff($end_date);
   $days=$duration->d;
-  error_log('There are '.$days.' days in this retreat', 0);
+  error_log('There are '.$days.' days in retreat #'.$event_id.' which runs from '.$start_date_text.' until '.$end_date_text, 0);
   if ($days>7)
   	error_log('and hence it should be segmented', 0);
-  else
+  else {
   	error_log('which is a week or less', 0);
+  	return;
+  }
+  $start_date->add(date_interval_create_from_date_string('1 week'));
+  $one_week_after_start_date_text=$start_date->format('Y-m-d H:i:s');
+  error_log($one_week_after_start_date_text.' is one week after the start date', 0);
   error_log("--------------------------------", 0);
-  error_log('Event '.print_r($event,true), 0);
-  error_log("--------------------------------", 0);
+  //error_log('Event '.print_r($event,true), 0);
+  //error_log("--------------------------------", 0);  
 }
 ?>
