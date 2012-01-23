@@ -44,8 +44,13 @@ function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($result['is_error']!=0)
   	return;
   $event=$result['values'][$objectId];
+  if ($event['is_template']!=0)
+  	return;
   if ($event['template_title']=='Create Solitary Retreats')
   	RecursivelyChopEventIntoWeeks($event);
+  else
+  	if ($event['template_title']=='Delete Solitary Retreats')
+  	  DeleteSolitaryRetreatsIntersecting($event);
 }
 
 function RecursivelyChopEventIntoWeeks(&$event) {
@@ -68,7 +73,34 @@ function RecursivelyChopEventIntoWeeks(&$event) {
   $one_week_after_start_date_text=$start_date->format('Y-m-d H:i:s');
   error_log($one_week_after_start_date_text.' is one week after the start date', 0);
   error_log("--------------------------------", 0);
-  //error_log('Event '.print_r($event,true), 0);
-  //error_log("--------------------------------", 0);  
+  unset($event['id']); 
+  unset($event['event_end_date']); 
+  unset($event['event_start_date']); 
+  unset($event['participant_listing_id']);
+  $event['end_date']=$one_week_after_start_date_text;
+  $event['version']='3';
+  civicrm_api('Event','Create',$event); 
+  $event['id']=$event_id;
+  $event['start_date']=$one_week_after_start_date_text;
+  $event['end_date']=$end_date_text;
+  civicrm_api('Event','Update',$event); 
+}
+
+function DeleteSolitaryRetreatsIntersecting(&$event) {
+  $end_date_text=$event['end_date'];
+  $end_date=date_create($end_date_text);
+  $start_date_text=$event['start_date'];
+  $start_date=date_create($start_date_text);
+  $params_get = array( 
+  'title' => $event['title'],
+  'version' => 3,
+'isCurrent'=>0,'return.max_results'=>104);
+  $result = civicrm_api( 'event','get',$params_get );
+  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+  error_log('Deleting retreats from '.$start_date_text.' until '.$end_date_text, 0);
+  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+  error_log('$result = '.print_r($result,true), 0);
+  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+  civicrm_api('Event','Delete',array('id' => $event['id'], 'version' =>3)); 
 }
 ?>
