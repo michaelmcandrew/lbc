@@ -41,9 +41,15 @@ function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
     return;
   require_once 'api/api.php';
   $result = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3)); 
+  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+  error_log('LBChooks_civicrm_post:'.print_r($objectRef,true), 0);
+  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
   if ($result['is_error']!=0)
   	return;
   $event=$result['values'][$objectId];
+  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+  error_log('API result:'.print_r($event,true), 0);
+  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
   if ($event['is_template']!=0)
   	return;
   if ($event['template_title']=='Create Solitary Retreats')
@@ -76,15 +82,12 @@ function RecursivelyChopEventIntoWeeks(&$event) {
   unset($event['id']); 
   unset($event['event_end_date']); 
   unset($event['event_start_date']); 
-  unset($event['participant_listing_id']);
-  unset($event['created_date']);
-  unset($event['created_id']);
+  //unset($event['participant_listing_id']);
+  //unset($event['created_date']);
+  //unset($event['created_id']);
   $event['end_date']=$one_week_after_start_date_text;
   $event['version']='3';
   $new_id=civicrm_api('Event','Create',$event); 
-  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-  error_log('new id #'.$new_id.' '.print_r($event,true), 0);
-  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
   $event['id']=$event_id;
   $event['start_date']=$one_week_after_start_date_text;
   $event['end_date']=$end_date_text;
