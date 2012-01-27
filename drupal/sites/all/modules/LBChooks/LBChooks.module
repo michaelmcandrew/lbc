@@ -81,7 +81,10 @@ function RecursivelyChopEventIntoWeeks(&$event) {
   unset($event['created_id']);
   $event['end_date']=$one_week_after_start_date_text;
   $event['version']='3';
-  civicrm_api('Event','Create',$event); 
+  $new_id=civicrm_api('Event','Create',$event); 
+  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+  error_log('new id #'.$new_id.' '.print_r($event,true), 0);
+  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
   $event['id']=$event_id;
   $event['start_date']=$one_week_after_start_date_text;
   $event['end_date']=$end_date_text;
