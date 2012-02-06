@@ -55,8 +55,10 @@ function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
 	else
 	{
 		if ($event['template_title']=='Delete Solitary Retreats')
+		{
+			DeleteSolitaryRetreatsIntersecting($event);
+		}
 	}
-	DeleteSolitaryRetreatsIntersecting($event);
 }
 
 function RecursivelyChopEventIntoWeeks(&$event) {
