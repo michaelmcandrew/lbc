@@ -62,7 +62,7 @@ function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
 }
 
 function RecursivelyChopEventIntoWeeks(&$event) {
-	error_log("--------------------------------", 0);
+	//error_log("--------------------------------", 0);
 	$event_id=$event['id'];
 	$end_date_text=$event['end_date'];
 	$end_date=date_create($end_date_text);
@@ -91,9 +91,9 @@ function RecursivelyChopEventIntoWeeks(&$event) {
 	$event['id']=$event_id;
 	$event['start_date']=$one_week_after_start_date_text;
 	$event['end_date']=$end_date_text;
-	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-	error_log('Updating event:'.print_r($event,true), 0);
-	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log('Updating event:'.print_r($event,true), 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
 	civicrm_api('Event','Update',$event);
 	CopyPriceSet($event_id,$new_event_result['id']);
 }
