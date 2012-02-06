@@ -3,129 +3,146 @@
  * @file
  * A block containing a link to the parent of a well formed path
  */
- 
- /**
+
+/**
  * Implements hook_help.
  *
  * Displays help and module information.
  *
- * @param path 
+ * @param path
  *   Which path of the site we're using to display help
- * @param arg 
+ * @param arg
  *   Array that holds the current path as returned from arg() function
  */
 function LBChooks_help($path, $arg) {
-  switch ($path) {
-    case "admin/help#LBChooks":
-      return '<p>'.  t("A module hooking custom functionality for the London Buddhist Centre") .'</p>';
-      break;
-  }
+	switch ($path) {
+		case "admin/help#LBChooks":
+			return '<p>'.  t("A module hooking custom functionality for the London Buddhist Centre") .'</p>';
+			break;
+	}
 }
- 
- /**
+
+/**
  * Implements hook_block_info().
  */
 function LBChooks_block_info() {
-  $blocks['LBChooks'] = array(
+	$blocks['LBChooks'] = array(
     'info' => t('LBC hooks'), //The name that will appear in the block list.
     'cache' => DRUPAL_CACHE_PER_ROLE, //Default
-  );
-  return $blocks;
+	);
+	return $blocks;
 }
 
 function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
-  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-  error_log('> '.$op.' '.$objectName, 0);
-  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-  if ($op != 'edit' || $objectName != 'Event')
-    return;
-  require_once 'api/api.php';
-  $result = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3)); 
-  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-  error_log('LBChooks_civicrm_post:'.print_r($objectRef,true), 0);
-  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-  if ($result['is_error']!=0)
-  	return;
-  $event=$result['values'][$objectId];
-  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-  error_log('API result:'.print_r($event,true), 0);
-  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-  if ($event['is_template']!=0)
-  	return;
-  if ($event['template_title']=='Create Solitary Retreats')
-  	RecursivelyChopEventIntoWeeks($event);
-  else
-  	if ($event['template_title']=='Delete Solitary Retreats')
-  	  DeleteSolitaryRetreatsIntersecting($event);
+	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	error_log('> '.$op.' '.$objectName, 0);
+	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	if ($op != 'edit' || $objectName != 'Event') {
+		return;
+	}
+	require_once 'api/api.php';
+	$result = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3));
+	if ($result['is_error']!=0) {
+		return;
+	}
+	$event=$result['values'][$objectId];
+	if ($event['is_template']!=0) {
+		return;
+	}
+	if ($event['template_title']=='Create Solitary Retreats') {
+		RecursivelyChopEventIntoWeeks($event);
+	}
+	else
+	{
+		if ($event['template_title']=='Delete Solitary Retreats')
+	}
+	DeleteSolitaryRetreatsIntersecting($event);
 }
 
 function RecursivelyChopEventIntoWeeks(&$event) {
-  error_log("--------------------------------", 0);
-  $event_id=$event['id'];
-  $end_date_text=$event['end_date'];
-  $end_date=date_create($end_date_text);
-  $start_date_text=$event['start_date'];
-  $start_date=date_create($start_date_text);
-  $duration=$start_date->diff($end_date);
-  $days=$duration->days;
-  error_log('There are '.$days.' days in retreat #'.$event_id.' which runs from '.$start_date_text.' until '.$end_date_text, 0);
-  if ($days>7)
-  	error_log('and hence it should be segmented', 0);
-  else {
-  	error_log('which is a week or less', 0);
-  	return;
-  }
-  $start_date->add(date_interval_create_from_date_string('1 week'));
-  $one_week_after_start_date_text=$start_date->format('Y-m-d H:i:s');
-  error_log($one_week_after_start_date_text.' is one week after the start date', 0);
-  error_log("--------------------------------", 0);
-  unset($event['id']); 
-  unset($event['event_end_date']); 
-  unset($event['event_start_date']); 
-  //unset($event['participant_listing_id']);
-  //unset($event['created_date']);
-  //unset($event['created_id']);
-  $event['end_date']=$one_week_after_start_date_text;
-  $event['version']='3';
-  $new_id=civicrm_api('Event','Create',$event); 
-  $event['id']=$event_id;
-  $event['start_date']=$one_week_after_start_date_text;
-  $event['end_date']=$end_date_text;
-  civicrm_api('Event','Update',$event); 
+	error_log("--------------------------------", 0);
+	$event_id=$event['id'];
+	$end_date_text=$event['end_date'];
+	$end_date=date_create($end_date_text);
+	$start_date_text=$event['start_date'];
+	$start_date=date_create($start_date_text);
+	$duration=$start_date->diff($end_date);
+	$days=$duration->days;
+	//error_log('There are '.$days.' days in retreat #'.$event_id.' which runs from '.$start_date_text.' until '.$end_date_text, 0);
+	if ($days<=7) {
+		return;
+	}
+	$start_date->add(date_interval_create_from_date_string('1 week'));
+	$one_week_after_start_date_text=$start_date->format('Y-m-d H:i:s');
+	//error_log($one_week_after_start_date_text.' is one week after the start date', 0);
+	//error_log("--------------------------------", 0);
+	//error_log('Original event:'.print_r($event,true), 0);
+	unset($event['id']);
+	unset($event['event_end_date']);
+	unset($event['event_start_date']);
+	$event['end_date']=$one_week_after_start_date_text;
+	$event['version']='3';
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log('Creating event:'.print_r($event,true), 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	$new_event_result=civicrm_api('Event','Create',$event);
+	$event['id']=$event_id;
+	$event['start_date']=$one_week_after_start_date_text;
+	$event['end_date']=$end_date_text;
+	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	error_log('Updating event:'.print_r($event,true), 0);
+	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	civicrm_api('Event','Update',$event);
+	CopyPriceSet($event_id,$new_event_result['id']);
 }
 
 function DeleteSolitaryRetreatsIntersecting(&$event) {
-  $end_date_text=$event['end_date'];
-  $end_date=date_create($end_date_text);
-  $end_date_int=$end_date->getTimestamp();
-  $start_date_text=$event['start_date'];
-  $start_date=date_create($start_date_text);
-  $start_date_int=$start_date->getTimestamp();
-  civicrm_api('Event','Delete',array('id' => $event['id'], 'version' =>3)); 
-  $params_get = array( 
+	$end_date_text=$event['end_date'];
+	$end_date=date_create($end_date_text);
+	$end_date_int=$end_date->getTimestamp();
+	$start_date_text=$event['start_date'];
+	$start_date=date_create($start_date_text);
+	$start_date_int=$start_date->getTimestamp();
+	civicrm_api('Event','Delete',array('id' => $event['id'], 'version' =>3));
+	$params_get = array(
   'title'=>$event['title'],
   'version'=>3,
   'isCurrent'=>0,
   'return.max_results'=>104);
-  $result = civicrm_api( 'event','get',$params_get );
-  error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-  error_log('Deleting retreats from '.$start_date_int.' until '.$end_date_int, 0);
+	$result = civicrm_api( 'event','get',$params_get );
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log('Deleting retreats from '.$start_date_int.' until '.$end_date_int, 0);
 
-  $values=&$result['values'];
-  foreach ($values as &$value) {
-    $this_end_date_text=$value['end_date'];
-  	$this_end_date=date_create($this_end_date_text);
-  	$this_end_date_int=$this_end_date->getTimestamp();
-  	$this_start_date_text=$value['start_date'];
-  	$this_start_date=date_create($this_start_date_text);
-    $this_start_date_int=$this_start_date->getTimestamp();
-    error_log('Consider '.$this_start_date_int.' until '.$this_end_date_int, 0);
-    if (($this_start_date_int>=$start_date_int)&&($this_end_date_int<=$end_date_int)) {
-      civicrm_api('Event','Delete',array('id' => $value['id'], 'version' =>3)); 
-      error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-      error_log('deleted retreat id '.$value['id'], 0);
-      error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-    }
-  }
+	$values=&$result['values'];
+	foreach ($values as &$value) {
+		$this_end_date_text=$value['end_date'];
+		$this_end_date=date_create($this_end_date_text);
+		$this_end_date_int=$this_end_date->getTimestamp();
+		$this_start_date_text=$value['start_date'];
+		$this_start_date=date_create($this_start_date_text);
+		$this_start_date_int=$this_start_date->getTimestamp();
+		//error_log('Consider '.$this_start_date_int.' until '.$this_end_date_int, 0);
+		if (($this_start_date_int>=$start_date_int)&&($this_end_date_int<=$end_date_int)) {
+			civicrm_api('Event','Delete',array('id' => $value['id'], 'version' =>3));
+			//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+			//error_log('deleted retreat id '.$value['id'], 0);
+			//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+		}
+	}
+}
+
+function CopyPriceSet($fromEventID,$toEventID) {
+	$query = "
+      INSERT INTO civicrm_price_set_entity
+      SELECT NULL, entity_table, ".$toEventID." ,price_set_id
+      FROM   civicrm_price_set_entity
+      WHERE  entity_table = 'civicrm_event'
+      AND    entity_id = ".$fromEventID;
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log($query, 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	require_once 'CRM/Core/DAO.php';
+	$dao = CRM_Core_DAO::executeQuery( $query );
+	//error_log('API result:'.print_r($dao,true), 0);
 }
 ?>
