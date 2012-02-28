@@ -12,7 +12,7 @@
  *
  * @package CRM
  * @author Marshal Newrock <marshal@idealso.com>
- * $Id: AuthorizeNet.php 34485 2011-05-26 14:01:39Z deepak $
+ * $Id: AuthorizeNet.php 38754 2012-02-08 20:54:20Z eileen $
  */
 
 /* NOTE:
@@ -95,8 +95,21 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         if ( ! defined( 'CURLOPT_SSLCERT' ) ) {
             return self::error( 9001, 'Authorize.Net requires curl with SSL support' );
         }
-
-        foreach ( $params as $field => $value ) {
+        
+        /*
+         * recurpayment function does not compile an array & then proces it -
+         * - the tpl does the transformation so adding call to hook here
+         * & giving it a change to act on the params array
+         */
+        $newParams = $params;
+        if ( CRM_Utils_Array::value( 'is_recur', $params ) &&
+             $params['contributionRecurID'] ) {
+             CRM_Utils_Hook::alterPaymentProcessorParams( $this,
+                                                     $params,
+                                                     $newParams );
+               
+        }       
+        foreach ( $newParams as $field => $value ) {
             $this->_setParam( $field, $value );
         }
 
@@ -229,9 +242,13 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         
         //for recurring, carry first contribution id  
         $template->assign( 'invoiceNumber', $this->_getParam( 'contributionID' ) );
-        
-        $template->assign( 'startDate', date('Y-m-d') );
-        
+        $firstPaymentDate = $this->_getParam('receive_date');
+        if(!empty($firstPaymentDate)){
+          //allow for post dated payment if set in form
+          $template->assign( 'startDate', date('Y-m-d', strtotime($firstPaymentDate)) );
+        }else{
+          $template->assign( 'startDate', date('Y-m-d') );
+        }
         // for open ended subscription totalOccurrences has to be 9999
         $installments = $this->_getParam('installments');
         $template->assign( 'totalOccurrences', $installments ? $installments : 9999 );
@@ -242,8 +259,8 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         $exp_month = str_pad( $this->_getParam( 'month' ), 2, '0', STR_PAD_LEFT );
         $exp_year = $this->_getParam( 'year' );
         $template->assign( 'expirationDate', $exp_year . '-' . $exp_month );
-
-        $template->assign( 'description', $this->_getParam('description') );
+        // name rather than description is used in the tpl - see http://www.authorize.net/support/ARB_guide.pdf
+        $template->assign( 'name', $this->_getParam('description') );
 
         $template->assign( 'email', $this->_getParam('email') );
         $template->assign( 'contactID', $this->_getParam('contactID') );
@@ -256,13 +273,12 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         $template->assign( 'billingCountry', $this->_getParam('country') );
         
         $arbXML = $template->fetch( 'CRM/Contribute/Form/Contribution/AuthorizeNetARB.tpl' );
-        
         // submit to authorize.net
+
         $submit = curl_init( $this->_paymentProcessor['url_recur'] );
         if ( !$submit ) {
             return self::error(9002, 'Could not initiate connection to payment gateway');
         }
-
         curl_setopt($submit, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($submit, CURLOPT_HTTPHEADER, Array("Content-Type: text/xml"));
         curl_setopt($submit, CURLOPT_HEADER, 1);
@@ -277,7 +293,6 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         }
 
         curl_close( $submit );
-
         $responseFields = $this->_ParseArbReturn( $response );
 
         if ( $responseFields['resultCode'] == 'Error' ) {
@@ -287,6 +302,11 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         // update recur processor_id with subscriptionId
         CRM_Core_DAO::setFieldValue( 'CRM_Contribute_DAO_ContributionRecur', $params['contributionRecurID'], 
                                      'processor_id', $responseFields['subscriptionId'] );
+        //only impact of assigning this here is is can be used to cancel the subscription in an automated test
+        // if it isn't cancelled a duplicate transaction error occurs
+        if(CRM_Utils_Array::value('subscriptionId',$responseFields)){
+          $this->_setParam('subscriptionId', $responseFields['subscriptionId']);
+        }
         return $params;
     }
 
@@ -308,7 +328,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         $fields['x_amount']         = $this->_getParam( 'amount' );
         $fields['x_currency_code']  = $this->_getParam( 'currencyID' );
         $fields['x_description']    = $this->_getParam( 'description' );
-
+        $fields['x_cust_id']        = $this->_getParam( 'contactID' );
         if ( $this->_getParam( 'paymentType' ) == 'AIM' ) {
             $fields['x_relay_response'] = 'FALSE';
             // request response in CSV format
@@ -500,7 +520,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
     }
 
     function &error( $errorCode = null, $errorMessage = null ) {
-        $e =& CRM_Core_Error::singleton( );
+        $e = CRM_Core_Error::singleton( );
         if ( $errorCode ) {
             $e->push( $errorCode, 0, null, $errorMessage );
         } else {
@@ -557,6 +577,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
             return CRM_Utils_System::url( 'civicrm/contribute/unsubscribe', 
                                           "reset=1&mid={$entityID}&cs={$checksumValue}", true, null, false, false );
         }
+
         return ( $this->_mode == 'test' ) ?
             'https://test.authorize.net' : 'https://authorize.net';
     }
@@ -571,7 +592,7 @@ class CRM_Core_Payment_AuthorizeNet extends CRM_Core_Payment {
         $template->assign( 'subscriptionId', $this->_getParam( 'subscriptionId' ) );
 
         $arbXML = $template->fetch( 'CRM/Contribute/Form/Contribution/AuthorizeNetARB.tpl' );
-        
+
         // submit to authorize.net
         $submit = curl_init( $this->_paymentProcessor['url_recur'] );
         if ( !$submit ) {

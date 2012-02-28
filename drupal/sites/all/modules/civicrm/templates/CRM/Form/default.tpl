@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -33,4 +33,11 @@
 
 {if ! $suppressForm}
 </form>
+{literal}
+<script type="text/javascript" >
+cj( function( ) {
+    cj("#{/literal}{$form.formName}{literal}").validate({ 'errorClass': 'crm-error'});
+});
+</script>
+{/literal}
 {/if}

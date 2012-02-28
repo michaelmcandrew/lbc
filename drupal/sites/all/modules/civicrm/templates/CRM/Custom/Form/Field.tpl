@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -32,6 +32,13 @@ function custom_option_html_type( ) {
 
     if ( !html_type_name && !data_type_id ) {
         return;
+    }
+	
+    if ( data_type_id == 11) {
+      toggleContactRefFilter( );
+    } else {
+      cj('#field_advance_filter').hide();
+      cj('#contact_reference_group').hide();      
     }
 
     if ( data_type_id < 4 ) {
@@ -140,6 +147,11 @@ function custom_option_html_type( ) {
                 {if $action neq 4 and $action neq 2}
                     <br /><span class="description">{ts}Select the type of data you want to collect and store for this contact. Then select from the available HTML input field types (choices are based on the type of data being collected).{/ts}</span>
                 {/if}
+		{if $action eq 2 and $changeFieldType}
+		<br />
+		( <a href='{crmURL p="civicrm/admin/custom/group/field/changetype" q="reset=1&id=`$id`"}'>{ts}Change Input Field Type{/ts}</a> )
+		<div class='clear'></div>
+		{/if}
             </td>
         </tr>
         <tr class="crm-custom-field-form-block-text_length"  id="textLength" {if !( $action eq 1 || $action eq 2 ) && ($form.data_type.value.0.0 != 0)}class="hide-block"{/if}>
@@ -153,6 +165,24 @@ function custom_option_html_type( ) {
                 {* Conditionally show table for setting up selection options - for field types = radio, checkbox or select *}
                 {include file="CRM/Custom/Form/Optionfields.tpl"}
             </table>
+            </td>
+        </tr>
+        <tr id='contact_reference_group'>
+            <td class="label">{$form.group_id.label}</td>	
+            <td class="html-adjust">
+              {$form.group_id.html}
+	          &nbsp;&nbsp;<span><a href="javascript:toggleContactRefFilter('Advance')">{ts}Advanced Filter{/ts}</a></span>
+              {capture assign=searchPreferences}{crmURL p="civicrm/admin/setting/search" q="reset=1"}{/capture}
+	          <div class="messages status"><div class="icon alert-icon"></div> {ts 1=$searchPreferences}If you are planning on using this field in front-end profile, event registration or contribution forms, you should 'Limit List to Group' or configure an 'Advanced Filter'  (so that you do not unintentionally expose your entire set of contacts). Users must have either 'access contact reference fields' OR 'access CiviCRM' permission in order to use contact reference autocomplete fields. You can assign 'access contact reference fields' to the anonymous role if you want un-authenticated visitors to use this field. Use <a href='%1'>Search Preferences - Contact Reference Options</a> to control the fields included in the search results.{/ts}
+	        </td>
+        </tr>	
+	    <tr id='field_advance_filter'>
+            <td class="label">{$form.filter.label}</td>	
+            <td class="html-adjust">
+              {$form.filter.html}
+              &nbsp;&nbsp;<span><a href="javascript:toggleContactRefFilter('Group')">{ts}Filter by Group{/ts}</a></span>
+	      <br />
+	      <span class="description">{ts}Filter contact search results for this field using Contact Lookup API parameters. EXAMPLE: To list Students in group 3:{/ts} "action=lookup&group=3&contact_sub_type=Student" {docURL page="CiviCRM Public APIs"}</span> 
             </td>
         </tr>
         <tr  class="crm-custom-field-form-block-options_per_line" id="optionsPerLine" {if $action neq 2 && ($form.data_type.value.0.0 >= 4 && $form.data_type.value.1.0 neq 'CheckBox' || $form.data_type.value.1.0 neq 'Radio' )}class="hide-block"{/if}>
@@ -270,6 +300,21 @@ function custom_option_html_type( ) {
     	document.getElementsByName("is_searchable")[0].checked   = false; 
 	    document.getElementsByName("is_search_range")[1].checked = true;
         cj("#searchByRange").hide();
+    }
+
+    function toggleContactRefFilter(setSelected) {
+      if ( !setSelected ) {
+        setSelected =  cj('#filter_selected').val();
+      } else {
+        cj('#filter_selected').val(setSelected);
+      }
+      if ( setSelected == 'Advance' ) {
+        cj('#contact_reference_group').hide( );
+        cj('#field_advance_filter').show( );
+      } else {
+        cj('#field_advance_filter').hide( );
+        cj('#contact_reference_group').show( );
+      }
     }
 </script>
 {/literal}

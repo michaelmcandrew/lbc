@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -119,7 +119,7 @@ class CRM_Export_Form_Map extends CRM_Core_Form
     {
         $errors  = array( );
 
-        if ( CRM_Utils_Array::value( 'saveMapping', $fields ) && $fields['_qf_Map_next'] ) {
+        if ( CRM_Utils_Array::value( 'saveMapping', $fields ) && CRM_Utils_Array::value( '_qf_Map_next', $fields ) ) {
             $nameField = CRM_Utils_Array::value( 'saveMappingName', $fields );
             if ( empty( $nameField ) ) {
                 $errors['saveMappingName'] = ts('Name is required to save Export Mapping');
@@ -151,6 +151,22 @@ class CRM_Export_Form_Map extends CRM_Core_Form
     public function postProcess( )
     {
         $params = $this->controller->exportValues( $this->_name );
+        $exportParams = $this->controller->exportValues( 'Select' );
+
+        require_once 'CRM/Export/Form/Select.php';
+        $greetingOptions = CRM_Export_Form_Select::getGreetingOptions( );
+
+        if ( !empty( $greetingOptions ) ) {
+            foreach ( $greetingOptions as $key => $value ) {
+                if ( $option = CRM_Utils_Array::value( $key, $exportParams ) ) {
+                    if ( $greetingOptions[$key][$option] == 'Other' ) {
+                        $exportParams[$key] = '';
+                    } else {
+                        $exportParams[$key] = $greetingOptions[$key][$option];
+                    }
+                }
+            }
+        }
         
         $currentPath = CRM_Utils_System::currentPath( );
         
@@ -218,7 +234,8 @@ class CRM_Export_Form_Map extends CRM_Core_Form
                                                  $this->get( 'componentClause' ),
                                                  $this->get( 'componentTable' ),
                                                  $this->get( 'mergeSameAddress' ),
-                                                 $this->get( 'mergeSameHousehold' )
+                                                 $this->get( 'mergeSameHousehold' ),
+                                                 $exportParams
                                                  );
     }
     

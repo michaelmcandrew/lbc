@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -30,7 +30,7 @@
 		<div class="ac_results" id="crm-contact-actions-list">
 			<div class="crm-contact-actions-list-inner">
 			  <div class="crm-contact_activities-list">
-			  {include file="CRM/Activity/Form/ActivityLinks.tpl"}
+			  {include file="CRM/Activity/Form/ActivityLinks.tpl" as_select=false}
 			  </div>
 			  
               <div class="crm-contact_print-list">
@@ -51,13 +51,20 @@
                        </a>
                    </li>
                  {/if}
-                 {if $userRecordUrl }
+                 {if !empty($userRecordUrl)}
                    <li class="crm-contact-user-record">
                       <a href="{$userRecordUrl}" class="user-record " title="{ts}User Record{/ts}">
                          <span><div class="icon user-record-icon"></div>{ts}User Record{/ts}</span>
                       </a>
                    </li>
                  {/if}
+                 {if !empty($userAddUrl)}
+                   <li class="crm-contact-user-record">
+                      <a href="{$userAddUrl}" class="user-record " title="{ts}Create User Record{/ts}">
+                         <span><div class="icon user-record-icon"></div>{ts}Create User Record{/ts}</span>
+                      </a>
+                   </li>
+              {/if}
 			  </ul>
 			  </div>
 			  <div class="crm-contact_actions-list">

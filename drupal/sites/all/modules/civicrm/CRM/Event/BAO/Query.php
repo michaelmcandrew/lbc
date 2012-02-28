@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -52,7 +52,7 @@ class CRM_Event_BAO_Query
     static function &getParticipantFields( $onlyParticipant = false ) 
     {
         require_once 'CRM/Event/BAO/Participant.php';
-        $fields =& CRM_Event_BAO_Participant::importableFields( 'Individual', true, $onlyParticipant );
+        $fields = CRM_Event_BAO_Participant::importableFields( 'Individual', true, $onlyParticipant );
         return $fields;
     }
     
@@ -197,7 +197,7 @@ class CRM_Event_BAO_Query
  
             // get discount name
             if ( CRM_Utils_Array::value( 'participant_discount_name', $query->_returnProperties ) ) {
-                $query->_select['participant_discount_name']      = "discount_name.label as participant_discount_name";
+                $query->_select['participant_discount_name']      = "discount_name.title as participant_discount_name";
                 $query->_element['participant_discount_name']     = 1;
                 $query->_tables['civicrm_discount']               = 1;
                 $query->_tables['participant_discount_name']      = 1;
@@ -218,6 +218,9 @@ class CRM_Event_BAO_Query
         $isTest   = false;
         $grouping = null;
         foreach ( array_keys( $query->_params ) as $id ) {
+            if ( !CRM_Utils_Array::value(0, $query->_params[$id]) ) {
+                continue;
+            }
             if ( substr( $query->_params[$id][0], 0, 6) == 'event_' ||
                  substr( $query->_params[$id][0], 0, 12) == 'participant_') {
                 if ( $query->_mode == CRM_Contact_BAO_QUERY::MODE_CONTACTS ) {
@@ -288,6 +291,7 @@ class CRM_Event_BAO_Query
             
         case 'participant_fee_id':
             $feeLabel = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionValue', $value, 'label');
+            $feeLabel = CRM_Core_DAO::escapeString( trim( $feeLabel ) );
             if ( $value ) {
                 $query->_where[$grouping][] = "civicrm_participant.fee_level $op '$feeLabel'";
                 $query->_qill[$grouping][]  = ts("Fee level" ) . " $op $feeLabel";
@@ -323,6 +327,7 @@ class CRM_Event_BAO_Query
             $query->_tables['civicrm_participant'] = $query->_whereTables['civicrm_participant'] = 1;
             return;
 
+        case 'participant_status':
         case 'participant_status_id':
             $val = array( );
             if ( is_array( $value ) ) {
@@ -501,7 +506,8 @@ class CRM_Event_BAO_Query
         return (isset($this->_qill)) ? $this->_qill : "";
     }
    
-    static function defaultReturnProperties( $mode ) 
+    static function defaultReturnProperties( $mode,
+                                             $includeCustomFields = true ) 
     {
         $properties = null;
         if ( $mode & CRM_Contact_BAO_Query::MODE_EVENT ) {
@@ -531,16 +537,18 @@ class CRM_Event_BAO_Query
                                 'participant_campaign_id'      => 1
                                   );
        
-            // also get all the custom participant properties
-            require_once "CRM/Core/BAO/CustomField.php";
-            $fields = CRM_Core_BAO_CustomField::getFieldsForImport('Participant');
-            if ( ! empty( $fields ) ) {
-                foreach ( $fields as $name => $dontCare ) {
-                    $properties[$name] = 1;
+            if ( $includeCustomFields ) {
+                // also get all the custom participant properties
+                require_once "CRM/Core/BAO/CustomField.php";
+                $fields = CRM_Core_BAO_CustomField::getFieldsForImport('Participant');
+                if ( ! empty( $fields ) ) {
+                    foreach ( $fields as $name => $dontCare ) {
+                        $properties[$name] = 1;
+                    }
                 }
             }
         }
-
+        
         return $properties;
     }
 

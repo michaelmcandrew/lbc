@@ -2,7 +2,7 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.3                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2010                                |
  +--------------------------------------------------------------------+
@@ -36,28 +36,20 @@
  * @version $Id: Website.php 2011-03-16 ErikHommel $
  */
 
-/**
- * Include utility functions
- */
-require_once 'api/v3/utils.php';
+require_once 'CRM/Core/BAO/Website.php';
 
 /**
  *  Add an Website for a contact
  * 
  * Allowed @params array keys are:
- * {@schema Core/Website.xml}
+ * {@getfields website_create}
+ * @example WebsiteCreate.php
  * {@example WebsiteCreate.php}
  * @return array of newly created website property values.
  * @access public
  */
 function civicrm_api3_website_create( $params ) 
 {
-
-  try {
-    civicrm_api3_verify_one_mandatory ($params, null, array ('contact_id', 'id'));
-    
-    require_once 'CRM/Core/BAO/Website.php';
-
     $websiteBAO = CRM_Core_BAO_Website::add($params);
     
 	 if ( is_a( $websiteBAO, 'CRM_Core_Error' )) {
@@ -65,29 +57,32 @@ function civicrm_api3_website_create( $params )
 	 } else {
 		 $values = array( );
 		 _civicrm_api3_object_to_array($websiteBAO, $values[$websiteBAO->id]);
-		 return civicrm_api3_create_success($values, $params);
+		 return civicrm_api3_create_success($values, $params,'website','get');
 	 }
-  } catch (PEAR_Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  } catch (Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  }
+
+}
+/*
+ * Adjust Metadata for Create action
+ * 
+ * The metadata is used for setting defaults, documentation & validation
+ * @param array $params array or parameters determined by getfields
+ */
+function _civicrm_api3_website_create_spec( &$params ) {
+  $params['contact_id']['api.required'] =1;
 }
 /**
  * Deletes an existing Website
  *
  * @param  array  $params
- *
- * {@schema Core/Website.xml}
+ * @example WebsiteDelete.php Std Delete Example
  * {@example WebsiteDelete.php 0}
+ * {@getfields website_delete}
+ * 
  * @return boolean | error  true if successfull, error otherwise
  * @access public
  */
 function civicrm_api3_website_delete( $params ) 
 {
-
-  try {
-    civicrm_api3_verify_mandatory ($params,null,array ('id'));
     $websiteID = CRM_Utils_Array::value( 'id', $params );
 
     require_once 'CRM/Core/DAO/Website.php';
@@ -96,38 +91,30 @@ function civicrm_api3_website_delete( $params )
     if ( $websiteDAO->find( ) ) {
 		while ( $websiteDAO->fetch() ) {
 			$websiteDAO->delete();
-			return civicrm_api3_create_success();
+			return civicrm_api3_create_success(1,$params,'website','delete');
 		}
 	} else {
 		return civicrm_api3_create_error( 'Could not delete website with id '.$websiteID);
 	}
-    
-  } catch (Exception $e) {
-    if (CRM_Core_Error::$modeException) throw $e;
-    return civicrm_api3_create_error( $e->getMessage() );
-  }
+
 }
 
 /**
  * Retrieve one or more websites 
  *
  * @param  mixed[]  (reference ) input parameters
- * 
- * {@schema Core/Website.xml}
- * {@example WebsiteDelete.php 0}
+ * {@getfields website_get}
+ * {@example WebsiteGet.php 0}
+ * @example WebsiteGet.php
  * @param  array $params  an associative array of name/value pairs.
  *
- * @return  array details of found websites else error
+ * @return  array details of found websites 
+ * 
  * @access public
  */
 
 function civicrm_api3_website_get( $params ) 
 {   
-
-  try {
-    civicrm_api3_verify_mandatory($params );
-	
-    require_once 'CRM/Core/BAO/Website.php';
     $websiteBAO = new CRM_Core_BAO_Website();
     $fields = array_keys($websiteBAO->fields());
 
@@ -145,13 +132,8 @@ function civicrm_api3_website_get( $params )
         }
         return civicrm_api3_create_success($websites,$params,$websiteBAO);
     } else {
-        return civicrm_api3_create_success(array(),$params,$websiteBAO);
+        return civicrm_api3_create_success(array(),$params,'website','get',$websiteBAO);
     }
-				
-  } catch (PEAR_Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  } catch (Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  }
+
 }
 

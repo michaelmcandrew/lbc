@@ -37,26 +37,30 @@ function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
 	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
 	error_log('> '.$op.' '.$objectName, 0);
 	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-	if ($op != 'edit' || $objectName != 'Event') {
-		return;
-	}
-	require_once 'api/api.php';
-	$result = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3));
-	if ($result['is_error']!=0) {
-		return;
-	}
-	$event=$result['values'][$objectId];
-	if ($event['is_template']!=0) {
-		return;
-	}
-	if ($event['template_title']=='Create Solitary Retreats') {
-		RecursivelyChopEventIntoWeeks($event);
-	}
-	else
-	{
-		if ($event['template_title']=='Delete Solitary Retreats')
-		{
-			DeleteSolitaryRetreatsIntersecting($event);
+	if ($op == 'edit' && $objectName == 'Event') {
+		require_once 'api/api.php';
+		$result = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3));
+		//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+		//error_log('Creating event:'.print_r($result,true), 0);
+		//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+		if ($result['is_error']==0) {
+			$event=$result['values'][$objectId];
+			if ($event['is_template']!=0) {
+				return;
+			}
+			$titleTokens=explode('|', $event['title']);
+			if (count($titleTokens)==2) {
+				$event['title']=$titleTokens[1];
+				if ($titleTokens[0]=='MAKE_WEEKLY') {
+					RecursivelyChopEventIntoWeeks($event);
+				}
+				else
+				{
+					if ($titleTokens[0]=='DELETE_SET'){
+						DeleteSolitaryRetreatsIntersecting($event);
+					}
+				}
+			}
 		}
 	}
 }
@@ -96,9 +100,20 @@ function RecursivelyChopEventIntoWeeks(&$event) {
 	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
 	civicrm_api('Event','Update',$event);
 	CopyPriceSet($event_id,$new_event_result['id']);
+	RecursivelyChopEventIntoWeeks($event);
 }
 
 function DeleteSolitaryRetreatsIntersecting(&$event) {
+	//$params_get = array(
+	//'title'=>$event['title'],
+	//'version'=>3,
+	//'isCurrent'=>0,
+	//'return.max_results'=>104);
+	$params_get = array(
+        'title' => $event['title'],
+		'version'=>3,
+		'return.max_results' => 208
+	);
 	$end_date_text=$event['end_date'];
 	$end_date=date_create($end_date_text);
 	$end_date_int=$end_date->getTimestamp();
@@ -106,12 +121,13 @@ function DeleteSolitaryRetreatsIntersecting(&$event) {
 	$start_date=date_create($start_date_text);
 	$start_date_int=$start_date->getTimestamp();
 	civicrm_api('Event','Delete',array('id' => $event['id'], 'version' =>3));
-	$params_get = array(
-  'title'=>$event['title'],
-  'version'=>3,
-  'isCurrent'=>0,
-  'return.max_results'=>104);
 	$result = civicrm_api( 'event','get',$params_get );
+	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	error_log('$params_get='.print_r($params_get,true), 0);
+	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	error_log('$result='.print_r($result,true), 0);
+	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
 	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
 	//error_log('Deleting retreats from '.$start_date_int.' until '.$end_date_int, 0);
 
@@ -125,7 +141,9 @@ function DeleteSolitaryRetreatsIntersecting(&$event) {
 		$this_start_date_int=$this_start_date->getTimestamp();
 		//error_log('Consider '.$this_start_date_int.' until '.$this_end_date_int, 0);
 		if (($this_start_date_int>=$start_date_int)&&($this_end_date_int<=$end_date_int)) {
-			civicrm_api('Event','Delete',array('id' => $value['id'], 'version' =>3));
+			if ($value['title']==$event['title']) { //API BUG? not sure why API is returning all events
+				civicrm_api('Event','Delete',array('id' => $value['id'], 'version' =>3));
+			}
 			//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
 			//error_log('deleted retreat id '.$value['id'], 0);
 			//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);

@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -51,7 +51,6 @@ class CRM_Core_TableHierarchy {
                          'civicrm_email'                => '13',
                          'civicrm_phone'                => '14',
                          'civicrm_im'                   => '15',
-                         'civicrm_im_provider'          => '16',
                          'civicrm_openid'               => '17',
                          'civicrm_location_type'        => '18',
                          'civicrm_group_contact'        => '19',
@@ -68,7 +67,15 @@ class CRM_Core_TableHierarchy {
                          'civicrm_case'                 => '30',
                          'case_relationship'            => '31',
                          'case_relation_type'           => '32',
-                         'civicrm_activity'             => '33'
+                         'civicrm_activity'             => '33',
+                         'civicrm_mailing_summary'      => '34',
+                         'civicrm_mailing_event_queue'  => '35',
+                         'civicrm_mailing_job'          => '36',
+                         'civicrm_mailing'              => '37',
+                         'civicrm_mailing_event_bounce' => '38',
+                         'civicrm_mailing_event_opened' => '39',
+                         'civicrm_mailing_event_reply'  => '40',
+                         'civicrm_mailing_event_trackable_url_open' => '41',
                          );
 
     static function &info( ) {

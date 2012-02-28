@@ -437,10 +437,10 @@ $GLOBALS['_DB_TABLE']['type'] = array(
  *     DB_Table::setErrorMessage(DB_TABLE_ERR_SQL_UNDEF, '...');
  * (3) DB_Table::setErrorMessage(array(DB_TABLE_ERR_PHPTYPE   => '...');
  *                                     DB_TABLE_ERR_SQL_UNDEF => '...');
- * (4) $obj =& new DB_Table();
+ * (4) $obj = new DB_Table();
  *     $obj->setErrorMessage(DB_TABLE_ERR_PHPTYPE,   '...');
  *     $obj->setErrorMessage(DB_TABLE_ERR_SQL_UNDEF, '...');
- * (5) $obj =& new DB_Table();
+ * (5) $obj = new DB_Table();
  *     $obj->setErrorMessage(array(DB_TABLE_ERR_PHPTYPE   => '...');
  *                                 DB_TABLE_ERR_SQL_UNDEF => '...');
  * </code>
@@ -658,7 +658,7 @@ class DB_Table extends DB_Table_Base
         }
 
         if (is_null($this->backend)) {
-            $this->error =& DB_Table::throwError(DB_TABLE_ERR_NOT_DB_OBJECT);
+            $this->error = DB_Table::throwError(DB_TABLE_ERR_NOT_DB_OBJECT);
             return;
         }
         
@@ -667,7 +667,7 @@ class DB_Table extends DB_Table_Base
         if (is_null($table)) {
             // $table parameter not given => check $table class property
             if (is_null($this->table)) {
-                $this->error =& DB_Table::throwError(DB_TABLE_ERR_TABLE_NAME_MISSING);
+                $this->error = DB_Table::throwError(DB_TABLE_ERR_TABLE_NAME_MISSING);
                 return;
             }
         } else {
@@ -1616,7 +1616,7 @@ class DB_Table extends DB_Table_Base
                 } else {
                 
                     // convert using the Date class
-                    $tmp =& new DB_Table_Date($val);
+                    $tmp = new DB_Table_Date($val);
                     $val = $tmp->format('%Y-%m-%d');
                     
                 }
@@ -1706,7 +1706,7 @@ class DB_Table extends DB_Table_Base
                     
                 } else {
                     // convert using the Date class
-                    $tmp =& new DB_Table_Date($val);
+                    $tmp = new DB_Table_Date($val);
                     $val = $tmp->format('%Y-%m-%d %H:%M:%S');
                 }
                 
@@ -2116,7 +2116,7 @@ class DB_Table extends DB_Table_Base
     {
         include_once 'DB/Table/QuickForm.php';
         $coldefs = $this->_getFormColDefs($columns);
-        $group =& DB_Table_QuickForm::getGroup($coldefs, $array_name);
+        $group = DB_Table_QuickForm::getGroup($coldefs, $array_name);
         return $group;
     }
     
@@ -2166,7 +2166,7 @@ class DB_Table extends DB_Table_Base
     function &getFormElements($cols, $array_name = null)
     {
         include_once 'DB/Table/QuickForm.php';
-        $elements =& DB_Table_QuickForm::getElements($cols, $array_name);
+        $elements = DB_Table_QuickForm::getElements($cols, $array_name);
         return $elements;
     }
     

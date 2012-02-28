@@ -1,7 +1,7 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -38,28 +38,21 @@
 /**
  * Include utility functions
  */
-require_once 'api/v3/utils.php';
+    require_once 'CRM/Core/BAO/Tag.php';
 
 /**
  *  Add a Tag. Tags are used to classify CRM entities (including Contacts, Groups and Actions).
  *
  * Allowed @params array keys are:
- * {@schema Core/Tag.xml}
+ * 
  * {@example TagCreate.php}
  * @return array of newly created tag property values.
+ * {@getfields tag_create}
  * @access public
  */
 function civicrm_api3_tag_create( $params ) 
 {
-  _civicrm_api3_initialize( true );
-  try {
-    civicrm_api3_verify_mandatory ($params,null,array ('name'));
 
-    if ( !array_key_exists ('used_for', $params)) {
-      $params ['used_for'] = "civicrm_contact";
-    }
-    
-    require_once 'CRM/Core/BAO/Tag.php';
     $ids = array( 'tag' => CRM_Utils_Array::value( 'tag', $params ) );
     if ( CRM_Utils_Array::value( 'tag', $params ) ) {
         $ids['tag'] = $params['tag'];
@@ -74,13 +67,17 @@ function civicrm_api3_tag_create( $params )
     } else {
         $values = array( );
         _civicrm_api3_object_to_array($tagBAO, $values[$tagBAO->id]);
-        return civicrm_api3_create_success($values,$params);
+        return civicrm_api3_create_success($values,$params,'tag','create',$tagBAO);
     }
-  } catch (PEAR_Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  } catch (Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  }
+
+}
+/*
+ * Specify Meta data for create. Note that this data is retrievable via the getfields function 
+ * and is used for pre-filling defaults and ensuring mandatory requirements are met.
+ */
+function _civicrm_api3_tag_create_spec(&$params){
+  $params['used_for']['api.default'] = 'civicrm_contact';
+  $params['name']['api.required'] = 1;
 }
 
 /**
@@ -88,23 +85,14 @@ function civicrm_api3_tag_create( $params )
  *
  * @param  array  $params
  * 
- * {@example TagDelete.php 0}
+ * @example TagDelete.ph
  * @return boolean | error  true if successfull, error otherwise
+ * {@getfields tag_delete}
  * @access public
  */
 function civicrm_api3_tag_delete( $params ) 
 {
-  _civicrm_api3_initialize( true );
-  try {
-    civicrm_api3_verify_mandatory ($params,null,array ('tag_id'));
-    $tagID = CRM_Utils_Array::value( 'tag_id', $params );
-
-    require_once 'CRM/Core/BAO/Tag.php';
-    return CRM_Core_BAO_Tag::del( $tagID ) ? civicrm_api3_create_success( ) : civicrm_api3_create_error(  ts( 'Could not delete tag' )  );
-  } catch (Exception $e) {
-    if (CRM_Core_Error::$modeException) throw $e;
-    return civicrm_api3_create_error( $e->getMessage() );
-  }
+    return _civicrm_api3_basic_delete(_civicrm_api3_get_BAO(__FUNCTION__), $params);
 }
 
 /**
@@ -113,42 +101,17 @@ function civicrm_api3_tag_delete( $params )
  * This api is used for finding an existing tag.
  * Either id or name of tag are required parameters for this api.
  * 
- * {@example TagGet.php 0}
+ * @example TagGet.php
  * @param  array $params  an associative array of name/value pairs.
  *
  * @return  array details of found tags else error
+ * {@getfields tag_get}
  * @access public
  */
 
 function civicrm_api3_tag_get($params) 
 {   
-   try {
-  _civicrm_api3_initialize( true );
-    civicrm_api3_verify_mandatory($params);
-    require_once 'CRM/Core/BAO/Tag.php';
-    $tagBAO = new CRM_Core_BAO_Tag();
-    $fields = array_keys($tagBAO->fields());
 
-    foreach ( $fields as $name) {
-        if (array_key_exists($name, $params)) {
-            $tagBAO->$name = $params[$name];
-        }
-    }
-    
-    if ( $tagBAO->find() ) {
-      $tags = array();
-      while ( $tagBAO->fetch() ) {
-        _civicrm_api3_object_to_array( $tagBAO, $tag );
-        $tags[$tagBAO->id] = $tag;
-      }
-      return civicrm_api3_create_success($tags,$params,$tagBAO);
-    } else {
-      return civicrm_api3_create_success(array(),$params,$tagBAO);
-    }
+    return _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
 
-  } catch (PEAR_Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  } catch (Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  }
 }

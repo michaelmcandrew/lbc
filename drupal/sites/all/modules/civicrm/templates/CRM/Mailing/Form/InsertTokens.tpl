@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -140,7 +140,7 @@ function selectValue( val ) {
             oEditor = CKEDITOR.instances[html_message];
             oEditor.setData( html_body );
         } else if ( editor == "tinymce" ) {
-            cj('#'+ html_message).tinymce().execCommand('mceSetContent',false, html_body);
+            tinyMCE.execInstanceCommand('html_message',"mceInsertContent",false, html_body );
         } else if ( editor == "joomlaeditor" ) { 
             cj("#"+ html_message).val( html_body );
             tinyMCE.execCommand('mceSetContent',false, html_body);           
@@ -212,14 +212,14 @@ function selectValue( val ) {
 	if ( isMailing ) { 
  	  cj('div.html').hover( 
 	  function( ) {
-	     if ( cj('#'+ html_message).tinymce() ) {
-	     cj('#'+ html_message).tinymce().onKeyUp.add(function() {
+	     if ( tinyMCE.get(html_message) ) {
+	     tinyMCE.get(html_message).onKeyUp.add(function() {
  	        verify( );
   	     });
 	     }
           },
 	  function( ) {
-	     if ( cj('#'+ html_message).tinymce() ) {
+	     if ( tinyMCE.get(html_message) ) {
 	       if ( tinyMCE.get(html_message).getContent() ) {
                  verify( );
                } 
@@ -252,14 +252,9 @@ function selectValue( val ) {
         }else {
            ( isMailing ) ? text_message = "text_message" : text_message = "msg_text";
         }          
-        var msg       = cj("#"+ text_message).val( );
-        var cursorlen = document.getElementById(text_message).selectionStart;
-        var textlen   = msg.length;
-        document.getElementById(text_message).value = msg.substring(0, cursorlen) + token + msg.substring(cursorlen, textlen);
-        var cursorPos = (cursorlen + token.length);
-        document.getElementById(text_message).selectionStart = cursorPos;
-        document.getElementById(text_message).selectionEnd   = cursorPos;
-        document.getElementById(text_message).focus();
+        
+        cj( "#"+ text_message ).replaceSelection( token ); 
+
         if ( isMailing ) { 
              verify();
         }
@@ -270,7 +265,7 @@ function selectValue( val ) {
         var token2     = cj("#token2").val( )[0];
         var editor     = {/literal}"{$editor}"{literal};
         if ( editor == "tinymce" ) {
-            cj('#'+ html_message).tinymce().execCommand('mceInsertContent',false, token2);
+            tinyMCE.execInstanceCommand('html_message',"mceInsertContent",false, token2 );
         } else if ( editor == "joomlaeditor" ) { 
             tinyMCE.execCommand('mceInsertContent',false, token2);
             var msg       = document.getElementById(html_message).value;
@@ -285,14 +280,7 @@ function selectValue( val ) {
             oEditor = CKEDITOR.instances[html_message];
             oEditor.insertHtml(token2.toString() );
         } else {
-            var msg       = document.getElementById(html_message).value;
-            var cursorlen = document.getElementById(html_message).selectionStart;
-            var textlen   = msg.length;
-            document.getElementById(html_message).value = msg.substring(0, cursorlen) + token2 + msg.substring(cursorlen, textlen);
-            var cursorPos = (cursorlen + token2.length);
-            document.getElementById(html_message).selectionStart = cursorPos;
-            document.getElementById(html_message).selectionEnd   = cursorPos;
-            document.getElementById(html_message).focus();
+            cj( "#"+ html_message ).replaceSelection( token2 );
         }
 
         if ( isMailing ) { 
@@ -302,9 +290,6 @@ function selectValue( val ) {
 
     cj(function() {
         cj('.accordion .head').addClass( "ui-accordion-header ui-helper-reset ui-state-default ui-corner-all ");
-
-        // restructuring css as per jQuery tab width
-        cj('.ui-state-default, .ui-widget-content .ui-state-default').css( 'width', '95%' );
         cj('.resizable-textarea textarea').css( 'width', '99%' );
         cj('.grippie').css( 'margin-right', '3px');
         cj('.accordion .head').hover( function() { cj(this).addClass( "ui-state-hover");
@@ -393,14 +378,14 @@ function selectValue( val ) {
                 
                 if ( data.signature_html ) {
                     var htmlMessage =  cj("#"+ html_message).val( ) + '<br/><br/>--<br/>' + data.signature_html;
-
+                    
                     // set wysiwg editor
                     if ( editor == "ckeditor" ) {
                         oEditor = CKEDITOR.instances[html_message];
                         var htmlMessage = oEditor.getData( ) + '<br/><br/>--' + data.signature_html;
                         oEditor.setData( htmlMessage  );
                     } else if ( editor == "tinymce" ) {
-                        cj('#'+ html_message).tinymce().execCommand('mceSetContent',false, htmlMessage );
+                        tinyMCE.execInstanceCommand('html_message',"mceInsertContent",false, htmlMessage );
                     }  else if ( editor == "drupalwysiwyg" ) {
                         Drupal.wysiwyg.instances[html_message].insert(htmlMessage);
                     } else {	

@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -80,7 +80,7 @@ function buildAdditionalBlocks( blockName, className ) {
         async   : false,
         success : function(html){
             cj(fname).after(html);
-            if (Drupal && Drupal.attachBehaviors) {
+            if ((typeof(Drupal) != 'undefined') && Drupal.attachBehaviors) {
             	Drupal.attachBehaviors(cj('#' + blockName + '_Block_'+ currentInstance)[0]);
           	}
         }

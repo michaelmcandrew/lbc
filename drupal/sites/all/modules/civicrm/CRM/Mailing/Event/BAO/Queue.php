@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -284,7 +284,7 @@ SELECT DISTINCT(civicrm_mailing_event_queue.contact_id) as contact_id,
    AND civicrm_mailing_event_queue.email_id = civicrm_email.id
    AND civicrm_mailing_event_queue.id = " . CRM_Utils_Type::escape($queueID, 'Integer');
         
-        $dao =& CRM_Core_DAO::executeQuery( $query, CRM_Core_DAO::$_nullArray );
+        $dao = CRM_Core_DAO::executeQuery( $query, CRM_Core_DAO::$_nullArray );
         
         $displayName = 'Unknown';
         $email       = 'Unknown';
@@ -294,6 +294,28 @@ SELECT DISTINCT(civicrm_mailing_event_queue.contact_id) as contact_id,
         }
         
         return array( $displayName, $email );
+    }
+
+    static function bulkCreate( $params, $now = null ) {
+        if ( ! $now ) {
+            $now = time( );
+        }
+
+        // construct a bulk insert statement
+        $values = array( );
+        foreach ( $params as $param ) {
+            $values[] = 
+                "( {$param[0]}, {$param[1]}, {$param[2]}, '" .
+                substr( sha1( "{$param[0]}:{$param[1]}:{$param[2]}:{$now}" ),
+                        0, 16 ) . "' )";
+        }
+
+        while ( ! empty( $values ) ) {
+            $input = array_splice( $values, 0, CRM_Core_DAO::BULK_INSERT_COUNT );
+            $str   = implode( ',', $input );
+            $sql = "INSERT INTO civicrm_mailing_event_queue ( job_id, email_id, contact_id, hash ) VALUES $str;";
+            CRM_Core_DAO::executeQuery( $sql );
+        }
     }
 
 }

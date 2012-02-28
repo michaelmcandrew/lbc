@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -28,29 +28,32 @@
 {if $cdType }
    {include file="CRM/Custom/Form/CustomData.tpl"}
 {else}
+<h3>{if $action eq 1 or $action eq 1024}
+        {ts 1=$activityTypeName}New %1{/ts}
+    {elseif $action eq 8}{ts 1=$activityTypeName}Delete %1{/ts}
+    {elseif $action eq 32768}{ts 1=$activityTypeName}Restore %1{/ts}
+    {else}{ts 1=$activityTypeName}Edit %1{/ts}{/if}
+</h3> 
 <div class="crm-block crm-form-block crm-case-activity-form-block">
-    {if $action neq 8 and $action  neq 32768 }
 
-{* added onload javascript for source contact*}
+{if $action neq 8 and $action  neq 32768 }
+    {* Include form buttons on top for new and edit modes. *}
+    <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="top"}</div>
+
+    {* added onload javascript for source contact*}
 {literal}
 <script type="text/javascript">
 var target_contact = assignee_contact = target_contact_id = '';
+
 {/literal}
-
-{if $targetContactValues}
-{foreach from=$targetContactValues key=id item=name}
-     {literal} target_contact += '{"name":"'+{/literal}"{$name}"{literal}+'","id":"'+{/literal}"{$id}"{literal}+'"},';{/literal}
-{/foreach}
-{literal} eval( 'target_contact = [' + target_contact + ']'); {/literal}
+{if $target_contact}
+    var target_contact = {$target_contact};
 {/if}
-
-{if $assigneeContactCount}
-{foreach from=$assignee_contact key=id item=name}
-     {literal} assignee_contact += '{"name":"'+{/literal}"{$name}"{literal}+'","id":"'+{/literal}"{$id}"{literal}+'"},';{/literal}
-{/foreach}
-{literal} eval( 'assignee_contact = [' + assignee_contact + ']'); {/literal}
+    
+{if $assignee_contact}
+    var assignee_contact = {$assignee_contact};
 {/if}
-
+ 
 {literal}
 var target_contact_id = assignee_contact_id = null;
 //loop to set the value of cc and bcc if form rule.
@@ -78,14 +81,13 @@ cj(document).ready( function( ) {
 
 {literal}
 
-eval( 'tokenClass = { tokenList: "token-input-list-facebook", token: "token-input-token-facebook", tokenDelete: "token-input-delete-token-facebook", selectedToken: "token-input-selected-token-facebook", highlightedToken: "token-input-highlighted-token-facebook", dropdown: "token-input-dropdown-facebook", dropdownItem: "token-input-dropdown-item-facebook", dropdownItem2: "token-input-dropdown-item2-facebook", selectedDropdownItem: "token-input-selected-dropdown-item-facebook", inputToken: "token-input-input-token-facebook" } ');
-
 var sourceDataUrl = "{/literal}{$dataUrl}{literal}";
-var tokenDataUrl  = "{/literal}{$tokenUrl}{literal}";
+var tokenDataUrl_target  = "{/literal}{$tokenUrl}&context=case_activity_target{literal}";
+var tokenDataUrl_assignee  = "{/literal}{$tokenUrl}&context=case_activity_assignee{literal}";
 
 var hintText = "{/literal}{ts}Type in a partial or complete name or email address of an existing contact.{/ts}{literal}";
-cj( "#assignee_contact_id").tokenInput( tokenDataUrl, { prePopulate: assignee_contact, classes: tokenClass, hintText: hintText });
-cj( "#target_contact_id"  ).tokenInput( tokenDataUrl, { prePopulate: target_contact,   classes: tokenClass, hintText: hintText });
+cj( "#assignee_contact_id").tokenInput( tokenDataUrl_assignee, { prePopulate: assignee_contact, theme: 'facebook', hintText: hintText });
+cj( "#target_contact_id"  ).tokenInput( tokenDataUrl_target, { prePopulate: target_contact,   theme: 'facebook', hintText: hintText });
 cj( 'ul.token-input-list-facebook, div.token-input-dropdown-facebook' ).css( 'width', '450px' );
 cj( "#source_contact_id").autocomplete( sourceDataUrl, { width : 180, selectFirst : false, matchContains:true
                             }).result( function(event, data, formatted) { cj( "#source_contact_qid" ).val( data[1] );
@@ -96,15 +98,6 @@ cj( "#source_contact_id").autocomplete( sourceDataUrl, { width : 180, selectFirs
 
     {/if}
 
-        <legend>
-           {if $action eq 8}
-              {ts}Delete{/ts}
-           {elseif $action eq 4}
-              {ts}View{/ts}
-           {elseif $action eq 32768}
-              {ts}Restore{/ts}
-           {/if}
-        </legend>
         {if $action eq 8 or $action eq 32768 }
             <div class="messages status"> 
               <div class="icon inform-icon"></div> &nbsp;
@@ -266,8 +259,10 @@ cj( "#source_contact_id").autocomplete( sourceDataUrl, { width : 180, selectFirs
 
                     <table class="form-layout-compressed">
                         <tr class="crm-case-activity-form-block-followup_activity_type_id">
-			    <td class="label">{ts}Schedule Follow-up Activity{/ts}</td>
-                            <td>{$form.followup_activity_type_id.html}&nbsp;{$form.interval.label}&nbsp;{$form.interval.html}&nbsp;{$form.interval_unit.html}</td>
+			                <td class="label">{ts}Schedule Follow-up Activity{/ts}</td>
+                            <td>{$form.followup_activity_type_id.html}&nbsp;&nbsp;{ts}on{/ts}
+                                {include file="CRM/common/jcalendar.tpl" elementName=followup_date}
+                            </td>
                         </tr>
                         <tr class="crm-case-activity-form-block-followup_activity_subject">
                            <td class="label">{$form.followup_activity_subject.label}</td>
@@ -284,14 +279,19 @@ cj( "#source_contact_id").autocomplete( sourceDataUrl, { width : 180, selectFirs
                 {$form.duration.html}
                  <span class="description">{ts}Total time spent on this activity (in minutes).{/ts}
               </td>
-           </tr> 
+           </tr>
+    {* Suppress activity status and priority for changes to status, case type and start date. PostProc will force status to completed. *}
+    {if $activityTypeFile NEQ 'ChangeCaseStatus'
+        && $activityTypeFile NEQ 'ChangeCaseType'
+        && $activityTypeFile NEQ 'ChangeCaseStartDate'} 
            <tr class="crm-case-activity-form-block-status_id">
               <td class="label">{$form.status_id.label}</td><td class="view-value">{$form.status_id.html}</td>
            </tr>
-	   <tr class="crm-case-activity-form-block-priority_id">
+	       <tr class="crm-case-activity-form-block-priority_id">
               <td class="label">{$form.priority_id.label}</td><td class="view-value">{$form.priority_id.html}</td>
            </tr>
-	   {if $form.tag.html}
+    {/if}
+	{if $form.tag.html}
              <tr class="crm-case-activity-form-block-tag">
                 <td class="label">{$form.tag.label}</td>
                 <td class="view-value"><div class="crm-select-container">{$form.tag.html}</div>

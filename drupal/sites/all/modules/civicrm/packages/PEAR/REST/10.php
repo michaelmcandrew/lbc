@@ -39,7 +39,7 @@ class PEAR_REST_10
     var $_rest;
     function PEAR_REST_10($config, $options = array())
     {
-        $this->_rest = &new PEAR_REST($config, $options);
+        $this->_rest = new PEAR_REST($config, $options);
     }
 
     /**
@@ -483,7 +483,7 @@ class PEAR_REST_10
             return $packagelist;
         }
         if ($this->_rest->config->get('verbose') > 0) {
-            $ui = &PEAR_Frontend::singleton();
+            $ui = PEAR_Frontend::singleton();
             $ui->log('Retrieving data...0%', true);
         }
         $ret = array();

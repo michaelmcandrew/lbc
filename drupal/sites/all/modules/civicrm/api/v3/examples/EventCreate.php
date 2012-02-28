@@ -16,7 +16,7 @@ $params = array(
   'end_date' => 20081023,
   'is_online_registration' => 1,
   'registration_start_date' => 20080601,
-  'registration_end_date' => 20081015,
+  'registration_end_date' => '2008-10-15',
   'max_participants' => 100,
   'event_full_text' => 'Sorry! We are already full',
   'is_monetory' => 0,
@@ -40,10 +40,10 @@ function event_create_expectedresult(){
   'is_error' => 0,
   'version' => 3,
   'count' => 1,
-  'id' => 13,
+  'id' => 2,
   'values' => array( 
-      '13' => array( 
-          'id' => 13,
+      '2' => array( 
+          'id' => 2,
           'title' => 'Annual CiviCRM meet',
           'summary' => 'If you have any CiviCRM realted issues or want to track where CiviCRM is heading, Sign up now',
           'description' => 'This event is intended to give brief idea about progess of CiviCRM and giving solutions to common user issues',
@@ -54,8 +54,8 @@ function event_create_expectedresult(){
           'end_date' => '20081023000000',
           'is_online_registration' => 1,
           'registration_link_text' => '',
-          'registration_start_date' => 20080601,
-          'registration_end_date' => 20081015,
+          'registration_start_date' => '20080601000000',
+          'registration_end_date' => '20081015000000',
           'max_participants' => 100,
           'event_full_text' => 'Sorry! We are already full',
           'is_monetary' => '',
@@ -96,9 +96,10 @@ function event_create_expectedresult(){
           'is_template' => '',
           'template_title' => '',
           'created_id' => '',
-          'created_date' => '',
+          'created_date' => '20111031165458',
           'currency' => '',
           'campaign_id' => '',
+          'is_share' => '',
         ),
     ),
 );
@@ -111,11 +112,14 @@ function event_create_expectedresult(){
 
 /*
 * This example has been generated from the API test suite. The test that created it is called
-* event_create 
+* 
+* testCreateEventSuccess and can be found in 
+* http://svn.civicrm.org/civicrm/branches/v3.4/tests/phpunit/CiviTest/api/v3/EventTest.php
+* 
 * You can see the outcome of the API tests at 
 * http://tests.dev.civicrm.org/trunk/results-api_v3
 * and review the wiki at
-* http://wiki.civicrm.org/confluence/display/CRMDOC40/CiviCRM+Public+APIs
+* http://wiki.civicrm.org/confluence/display/CRMDOC/CiviCRM+Public+APIs
 * Read more about testing here
 * http://wiki.civicrm.org/confluence/display/CRM/Testing
 */

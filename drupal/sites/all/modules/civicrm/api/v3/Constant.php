@@ -1,7 +1,7 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -34,11 +34,6 @@
  * @version $Id: Constant.php 30171 2010-10-14 09:11:27Z mover $
  *
  */
-
-/**
- * Include utility functions
- */
-require_once 'api/v3/utils.php';
 
 /**
  * Generic file to retrieve all the constants and
@@ -88,12 +83,12 @@ require_once 'api/v3/utils.php';
  *    <li>worldRegion</li>
  *    <li>wysiwygEditor</li>
  *  </ul>
+ *  @example ConstantGet.php
+ *  {@getfields constant_get}
  */
 function civicrm_api3_constant_get($params)
 {
-  _civicrm_api3_initialize(true);
-  try{
-    civicrm_api3_verify_mandatory ($params,null,array ('name'));
+ 
     $name= $params ['name'];
     require_once 'CRM/Core/PseudoConstant.php';
     $className = 'CRM_Core_PseudoConstant';
@@ -110,19 +105,16 @@ function civicrm_api3_constant_get($params)
     }
 
     return civicrm_api3_create_error('Unknown civicrm constant or method not callable');
-  } catch (PEAR_Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  } catch (Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  }
+
 }
 
 
 
-function civicrm_api3_constant_getfields($params) {
-  _civicrm_api3_initialize(true);
+function _civicrm_api3_constant_create_spec(&$params) {
 
-  return civicrm_api3_create_success (array (
+  $params =  (array 
+  ('name' => array('api.required' => 1,
+   'options' =>
    'activityStatus',
    'activityType',
    'addressee',
@@ -162,7 +154,6 @@ function civicrm_api3_constant_getfields($params) {
    'ufGroup',
    'visibility',
    'worldRegion',
-   'wysiwygEditor'),
-   $params);
+   'wysiwygEditor')));
 } 
 

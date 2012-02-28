@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -146,7 +146,8 @@ class CRM_Case_Task
     {
         $tasks = array( );
         if ( ( $permission == CRM_Core_Permission::EDIT ) 
-             || CRM_Core_Permission::check( 'edit cases' ) ) {
+             || CRM_Core_Permission::check( 'access all cases and activities' )
+             || CRM_Core_Permission::check( 'access my cases and activities' ) ) {
             $tasks = self::taskTitles( ); 
         } else {
             $tasks = array( 

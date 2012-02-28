@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -200,7 +200,8 @@ class CRM_Admin_Form_WordReplacements extends CRM_Core_Form
             if ( CRM_Utils_Array::value( $i, $params['new'] ) && 
                  CRM_Utils_Array::value( $i, $params['old'] ) ) {
                 if ( CRM_Utils_Array::value( $i, $params['enabled'] ) )  { 
-                    if ( CRM_Utils_Array::value( 'cb', $params ) && is_array( $params['cb'] ) && array_key_exists( $i, $params['cb']) ) {
+                    if ( CRM_Utils_Array::value( 'cb', $params ) && 
+                         CRM_Utils_Array::value( $i, $params['cb'] ) ) {
                         $enabled['exactMatch'] += array($params['old'][$i]=>$params['new'][$i]);
                     } else {
                         $enabled['wildcardMatch'] += array($params['old'][$i]=>$params['new'][$i]);
@@ -219,8 +220,11 @@ class CRM_Admin_Form_WordReplacements extends CRM_Core_Form
                             'disabled' => $disabled );
         
         $config = CRM_Core_Config::singleton();
+
+        require_once 'CRM/Core/DAO/Domain.php';
         $domain = new CRM_Core_DAO_Domain();
         $domain->find(true);
+
         if ( $domain->locales && $config->localeCustomStrings ) {
             // for multilingual
             $addReplacements = $config->localeCustomStrings;

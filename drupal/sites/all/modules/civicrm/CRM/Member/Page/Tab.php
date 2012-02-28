@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -59,7 +59,7 @@ class CRM_Member_Page_Tab extends CRM_Core_Page {
      */
     function browse( ) 
     { 
-        $links =& self::links( 'all', $this->_isPaymentProcessor, $this->_accessContribution );
+        $links = self::links( 'all', $this->_isPaymentProcessor, $this->_accessContribution );
 
         $membership = array();
         require_once 'CRM/Member/DAO/Membership.php';
@@ -114,7 +114,6 @@ class CRM_Member_Page_Tab extends CRM_Core_Page {
                 
                 $isCancelSupported = CRM_Member_BAO_Membership::isCancelSubscriptionSupported( $membership[$dao->id]['membership_id'] );
                 
-                
                 $membership[$dao->id]['action'] = CRM_Core_Action::formLink( self::links( 'all', 
                                                                                           null, 
                                                                                           null, 
@@ -130,16 +129,18 @@ class CRM_Member_Page_Tab extends CRM_Core_Page {
                                                                                    'cid'=> $this->_contactId));
             }
             
-            //does membership is auto renew CRM-7137.
-            if ( $isCancelSupported ) {
-                $membership[$dao->id]['auto_renew'] = CRM_Utils_Array::value( 'contribution_recur_id', 
-                                                                              $membership[$dao->id] );
+            //does membership have auto renew CRM-7137.
+            if ( CRM_Utils_Array::value( 'contribution_recur_id', $membership[$dao->id] ) &&
+                 !CRM_Member_BAO_Membership::isSubscriptionCancelled( $membership[$dao->id]['membership_id'] ) ) {
+                $membership[$dao->id]['auto_renew'] = 1;
+            } else {
+                $membership[$dao->id]['auto_renew'] = 0;
             }
         }
         
         //Below code gives list of all Membership Types associated
         //with an Organization(CRM-2016)
-        include_once 'CRM/Member/BAO/MembershipType.php';
+        require_once 'CRM/Member/BAO/MembershipType.php';
         $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypesByOrg( $this->_contactId );        
         foreach ( $membershipTypes as $key => $value ) {   
             $membershipTypes[$key]['action'] = CRM_Core_Action::formLink( self::membershipTypeslinks(),

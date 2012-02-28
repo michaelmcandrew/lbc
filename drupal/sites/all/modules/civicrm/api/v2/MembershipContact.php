@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -34,7 +34,7 @@
  * @subpackage API_Membership
  *  
  * @copyright CiviCRM LLC (c) 2004-2011
- * @version $Id: MembershipContact.php 33007 2011-03-14 22:52:10Z kurund $
+ * @version $Id: MembershipContact.php 37986 2011-12-19 17:51:59Z kurund $
  */
 
 /**
@@ -70,7 +70,7 @@ function civicrm_membership_contact_create(&$params)
         return $error;
     }
 
-    $params = array_merge($values,$params);
+    $params = array_merge( $params, $values );
     
     require_once 'CRM/Core/Action.php';
     $action = CRM_Core_Action::ADD;
@@ -247,7 +247,7 @@ function _civicrm_membership_format_params( &$params, &$values, $create=false)
 {
     require_once "CRM/Member/DAO/Membership.php";
     require_once "CRM/Member/PseudoConstant.php";
-    $fields =& CRM_Member_DAO_Membership::fields( );
+    $fields = CRM_Member_DAO_Membership::fields( );
     _civicrm_store_values( $fields, $params, $values );
     
     foreach ($params as $key => $value) {
@@ -272,11 +272,18 @@ function _civicrm_membership_format_params( &$params, &$values, $create=false)
             unset($values['membership_contact_id']);
             break;
         case 'join_date':
+        case 'start_date':
+        case 'end_date':    
+        case 'reminder_date':
         case 'membership_start_date':
         case 'membership_end_date':
             if (!CRM_Utils_Rule::date($value)) {
                 return civicrm_create_error("$key not a valid date: $value");
             }
+            
+            // make sure we format dates to mysql friendly format 
+            $values[$key] = CRM_Utils_Date::processDate( $value, null, false, 'Ymd' );
+
             break;
         case 'membership_type_id':
             if ( !CRM_Utils_Array::value( $value, CRM_Member_PseudoConstant::membershipType( ) ) ) {

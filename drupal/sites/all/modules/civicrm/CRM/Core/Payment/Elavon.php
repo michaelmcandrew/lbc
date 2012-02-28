@@ -2,7 +2,7 @@
 
 /*
  +----------------------------------------------------------------------------+
- | Elavon (Nova) Virtual Merchant Core Payment Module for CiviCRM version 4.0 |
+ | Elavon (Nova) Virtual Merchant Core Payment Module for CiviCRM version 4.1 |
  +----------------------------------------------------------------------------+
  | Licensed to CiviCRM under the Academic Free License version 3.0            |
  |                                                                            |
@@ -105,6 +105,7 @@ class CRM_Core_Payment_Elavon extends CRM_Core_Payment
         $requestFields['ssl_invoice_number']	     = $params['invoiceID'];//32 character string
         $requestFields['ssl_transaction_type']	     = "CCSALE";
         $requestFields['ssl_description']	     = $params['description'];
+        $requestFields['ssl_customer_number']     = substr($params['credit_card_number'], -4);
 
         /************************************************************************************
          *  Fields available from civiCRM not implemented for Elavon
@@ -302,7 +303,7 @@ class CRM_Core_Payment_Elavon extends CRM_Core_Payment
      **************************************************/
     function &errorExit ( $errorCode = null, $errorMessage = null )
     {
-        $e =& CRM_Core_Error::singleton( );
+        $e = CRM_Core_Error::singleton( );
         if ( $errorCode ) {
             $e->push( $errorCode, 0, null, $errorMessage );
         } else {

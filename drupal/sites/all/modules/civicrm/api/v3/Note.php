@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -40,13 +40,8 @@
 /**
  * Files required for this package
  */
-require_once 'api/v3/utils.php';
-require_once 'CRM/Core/BAO/Note.php';
 
-function civicrm_api3_note_getfields($params) {
-	$bao = new CRM_Core_BAO_Note ();
-	return ($bao->fields ());
-}
+require_once 'CRM/Core/BAO/Note.php';
 
 /**
  * Create Note
@@ -55,28 +50,15 @@ function civicrm_api3_note_getfields($params) {
  * Required parameters : entity_id AND note
  *
  * @param   array  $params  an associative array of name/value property values of civicrm_note
- *
- * @return array note id if note is created otherwise is_error = 1
+ * {@getfields note_create}
+ * @return array API result array
  * @access public
- * @example NoteCreate.php
- * {@example NoteCreate.php
+ * @example NoteCreate.php Create example
+ *
+ * 
  */
 function civicrm_api3_note_create($params) {
-	_civicrm_api3_initialize ( true );
-	try {
-		
-		if (! isset ( $params ['entity_table'] )) {
-			$params ['entity_table'] = "civicrm_contact";
-		}
-		
-		civicrm_api3_verify_mandatory ( $params, 'CRM_Core_BAO_Note', array ('note' ) );
-		
-		$contactID = CRM_Utils_Array::value ( 'contact_id', $params );
-		
-		if (! isset ( $params ['modified_date'] )) {
-			$params ['modified_date'] = date ( "Ymd" );
-		}
-		
+	
 		$ids = array ();
 		$ids = array ('id' => CRM_Utils_Array::value ( 'id', $params ) );
 		$noteBAO = CRM_Core_BAO_Note::add ( $params, $ids );
@@ -91,11 +73,19 @@ function civicrm_api3_note_create($params) {
 		}
 		$result = civicrm_api3_create_success ( $note, $params );
 		return civicrm_api3_create_success ( $note, $params );
-	} catch ( PEAR_Exception $e ) {
-		return civicrm_api3_create_error ( $e->getMessage () );
-	} catch ( Exception $e ) {
-		return civicrm_api3_create_error ( $e->getMessage () );
-	}
+
+}
+/*
+ * Adjust Metadata for Create action
+ * 
+ * The metadata is used for setting defaults, documentation & validation
+ * @param array $params array or parameters determined by getfields
+ */
+function _civicrm_api3_note_create_spec(&$params){
+  $params['entity_table']['api.default'] = "civicrm_contact";
+  $params['modified_date']['api.default'] = "now";
+  $params['note']['api.required'] =1;
+  $params['entity_id']['api.required'] =1;
 }
 
 /**
@@ -103,72 +93,43 @@ function civicrm_api3_note_create($params) {
  *
  * This API is used for deleting a note
  *
- * @param  Int  $noteID   Id of the note to be deleted
- *
+ * @params  array  $paramsarray including id of the note to be deleted
+ * {@getfields note_delete}
  * @return null
  * @access public
  */
 function civicrm_api3_note_delete($params) {
-	_civicrm_api3_initialize ( true );
-	try {
-		civicrm_api3_verify_mandatory ( $params, null, array ('id' ) );
-		
+	
 		$result = new CRM_Core_BAO_Note ();
 		return $result->del ( $params ['id'] ) ? civicrm_api3_create_success () : civicrm_api3_create_error ( 'Error while deleting Note' );
-	} catch ( PEAR_Exception $e ) {
-		return civicrm_api3_create_error ( $e->getMessage () );
-	} catch ( Exception $e ) {
-		return civicrm_api3_create_error ( $e->getMessage () );
-	}
+
 }
 
 /**
  * Retrieve a specific note, given a set of input params
  *
- * @param  array   $params (reference ) input parameters
+ * @param  array   $params  input parameters
  *
- * @return array (reference ) array of properties,
+ * @return array  array of properties,
  * if error an array with an error id and error message
- *
+ * {@getfields note_get}
  * @static void
  * @access public
  */
 
 function civicrm_api3_note_get($params) {
-	_civicrm_api3_initialize ( true );
-	try {
-		
-		if (! isset ( $params ['entity_table'] )) {
-			$params ['entity_table'] = "civicrm_contact";
-		}
-		
-		civicrm_api3_verify_mandatory ( $params, 'CRM_Core_BAO_Note' );
-		
-		$entity_id = ( int ) $params ['entity_id'];
-		$noteBAO = new CRM_Core_BAO_Note ();
-		$fields = array_keys ( $noteBAO->fields () );
-		
-		foreach ( $fields as $name ) {
-			if (array_key_exists ( $name, $params )) {
-				$noteBAO->$name = $params [$name];
-			}
-		}
-		
-		if (! $noteBAO->find ( true )) {
-			return civicrm_api3_create_success ( array () );
-		}
-		$note = array ();
-		_civicrm_api3_object_to_array ( $noteBAO, $note [$noteBAO->id] );
-		while ( $noteBAO->fetch () ) {
-			_civicrm_api3_object_to_array ( $noteBAO, $note [$noteBAO->id] );
-		}
-		return civicrm_api3_create_success ( $note, $params, $noteBAO );
+
+    return _civicrm_api3_basic_get('CRM_Core_BAO_Note', $params);		
 	
-	} catch ( PEAR_Exception $e ) {
-		return civicrm_api3_create_error ( $e->getMessage () );
-	} catch ( Exception $e ) {
-		return civicrm_api3_create_error ( $e->getMessage () );
-	}
+}
+/*
+ * Adjust Metadata for Get action
+ * 
+ * The metadata is used for setting defaults, documentation & validation
+ * @param array $params array or parameters determined by getfields
+ */
+function _civicrm_api3_note_get_spec(&$params){
+  $params['entity_table']['api.default'] = "civicrm_contact";
 }
 
 /**
@@ -177,8 +138,7 @@ function civicrm_api3_note_get($params) {
  * @return array Nested associative array beginning with direct children of given note.
  */
 function &civicrm_api3_note_tree_get($params) {
-	_civicrm_api3_initialize ( true );
-	try {
+
 		civicrm_api3_verify_mandatory ( $params, null, array ('id' ) );
 		
 		if (! is_numeric ( $params ['id'] )) {
@@ -190,9 +150,5 @@ function &civicrm_api3_note_tree_get($params) {
 			$params ['snippet'] = FALSE;
 		$noteTree = CRM_Core_BAO_Note::getNoteTree ( $params ['id'], $params ['max_depth'], $params ['snippet'] );
 		return civicrm_api3_create_success ( $noteTree, $params );
-	} catch ( PEAR_Exception $e ) {
-		return civicrm_api3_create_error ( $e->getMessage () );
-	} catch ( Exception $e ) {
-		return civicrm_api3_create_error ( $e->getMessage () );
-	}
+
 }

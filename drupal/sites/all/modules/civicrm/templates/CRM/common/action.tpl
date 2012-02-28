@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -25,17 +25,18 @@
 *}
 {literal}
 <script type="text/javascript">
- cj({/literal}{if $isSnippet }document{else}'#crm-container'{/if}{literal})
- 	.bind('click', function(event) {
-    if (cj(event.target).is('.btn-slide')) {
-      cj('.panel').css('display', 'none');
-      cj(event.target).children().show();
-      cj('.btn-slide-active').removeClass('btn-slide-active');	
-      cj(event.target).addClass('btn-slide-active');
-    } else {
-    	cj('.btn-slide .panel').hide();
-    	cj('.btn-slide-active').removeClass('btn-slide-active');	
-	} 
-  });
+cj('#crm-container')
+    .live('click', function(event) {
+        if (cj(event.target).is('.btn-slide')) {
+            var currentActive = cj('#crm-container .btn-slide-active');
+            currentActive.children().hide();
+            currentActive.removeClass('btn-slide-active');
+            cj(event.target).children().show();
+            cj(event.target).addClass('btn-slide-active');
+        } else {
+            cj('.btn-slide .panel').hide();
+            cj('.btn-slide-active').removeClass('btn-slide-active');	
+        } 
+});
 </script>
 {/literal}

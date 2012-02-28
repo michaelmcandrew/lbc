@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -68,7 +68,7 @@ class CRM_Core_Extensions_Extension
         $this->file = $file;
         $this->is_active = $is_active;
         
-        $config =& CRM_Core_Config::singleton( );
+        $config = CRM_Core_Config::singleton( );
         $this->path = $config->extensionsDir . DIRECTORY_SEPARATOR . $key . DIRECTORY_SEPARATOR;
     }
 
@@ -169,14 +169,16 @@ class CRM_Core_Extensions_Extension
             return simplexml_load_file( $file,
             'SimpleXMLElement', LIBXML_NOCDATA);
         } else {
-            CRM_Core_Error::fatal( 'Extension directory ' . $file . ' does not exist.' );
+            CRM_Core_Error::fatal( 'Extension file ' . $file . ' does not exist.' );
         }
         return array();
     }
     
     public function install( ) {
-        $this->download();
-        $this->installFiles();
+        if( $this->status != self::STATUS_LOCAL ) {
+            $this->download();
+            $this->installFiles();
+        }
         $this->_registerExtensionByType();
         $this->_createExtensionEntry();
     }
@@ -190,15 +192,15 @@ class CRM_Core_Extensions_Extension
     public function removeFiles() {
         require_once 'CRM/Utils/File.php';
         require_once 'CRM/Core/Config.php';
-        $config =& CRM_Core_Config::singleton( );
+        $config = CRM_Core_Config::singleton( );
         CRM_Utils_File::cleanDir( $config->extensionsDir . DIRECTORY_SEPARATOR . $this->key, true );
     }
     
     public function installFiles() {
         require_once 'CRM/Utils/File.php';
         require_once 'CRM/Core/Config.php';
-        $config =& CRM_Core_Config::singleton( );
-        
+        $config = CRM_Core_Config::singleton( );
+
         $zip = new ZipArchive;
         $res = $zip->open( $this->tmpFile );
         if ($res === TRUE) {
@@ -226,7 +228,7 @@ class CRM_Core_Extensions_Extension
     
     public function download( ) {
         require_once 'CRM/Core/Config.php';
-        $config =& CRM_Core_Config::singleton( );
+        $config = CRM_Core_Config::singleton( );
         
         $path = $config->extensionsDir . DIRECTORY_SEPARATOR . 'tmp';
         $filename = $path . DIRECTORY_SEPARATOR . $this->key . '.zip';

@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -473,6 +473,8 @@ class CRM_Utils_OpenFlashChart
                     //hack to show tooltip.
                     if ( $xSize < 200 ) {
                         $xSize = (count( $params['values'] ) > 1) ? 100*count( $params['values'] ) : 170;
+                    } else if ( $xSize > 600 && count($params['values']) > 1 ) {
+                        $xSize = (count($params['values']) + 400/count( $params['values']))*count($params['values']);
                     }
                 }
 

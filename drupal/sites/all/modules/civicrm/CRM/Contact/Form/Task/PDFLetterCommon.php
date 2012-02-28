@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -114,7 +114,32 @@ class CRM_Contact_Form_Task_PDFLetterCommon
         require_once "CRM/Mailing/BAO/Mailing.php";
         CRM_Mailing_BAO_Mailing::commonLetterCompose( $form );
 
-        $form->addDefaultButtons( ts('Make PDF Letters') );            
+        if ( $form->_single ){
+            $cancelURL   = CRM_Utils_System::url('civicrm/contact/view',
+                                                 "reset=1&cid={$form->_cid}&selectedChild=activity",
+                                                 false, null, false);
+            if( $form->get( 'action' ) == CRM_Core_Action::VIEW ) {
+                $form->addButtons( array(
+                                         array ( 'type'      => 'cancel',
+                                                 'name'      => ts('Done'),
+                                                 'js'        => array( 'onclick' => "location.href='{$cancelURL}'; return false;" ) ),
+                                         )
+                                   );
+            } else {
+                $form->addButtons( array(
+                                         array ( 'type'      => 'submit',
+                                                 'name'      => ts('Make PDF Letter'),
+                                                 'isDefault' => true   ),
+                                         array ( 'type'      => 'cancel',
+                                                 'name'      => ts('Done'),
+                                                 'js'        => array( 'onclick' => "location.href='{$cancelURL}'; return false;" ) ),
+                                         )
+                                   );
+            }
+            
+        } else {
+            $form->addDefaultButtons( ts('Make PDF Letters') );            
+        }
         
         $form->addFormRule( array( 'CRM_Contact_Form_Task_PDFLetterCommon', 'formRule' ), $form );
     }
@@ -189,7 +214,7 @@ class CRM_Contact_Form_Task_PDFLetterCommon
                 CRM_Core_BAO_MessageTemplates::add( $messageTemplate );
             }
         }
-        else if ( $formValues['template'] > 0 ) {
+        else if ( CRM_Utils_Array::value( 'template', $formValues ) > 0 ) {
             if ( CRM_Utils_Array::value( 'bind_format', $formValues ) && $formValues['format_id'] > 0 ) {
                 $query = "UPDATE civicrm_msg_template SET pdf_format_id = {$formValues['format_id']} WHERE id = {$formValues['template']}";
             } else {
@@ -216,8 +241,8 @@ class CRM_Contact_Form_Task_PDFLetterCommon
         //from particular letter line, CRM-6798 
         self::formatMessage( $html_message );
 
-        require_once 'CRM/Activity/BAO/Activity.php';
-		$messageToken = CRM_Activity_BAO_Activity::getTokens( $html_message );  
+        require_once 'CRM/Utils/Token.php';
+		$messageToken = CRM_Utils_Token::getTokens( $html_message );  
 
 		$returnProperties = array();
         if( isset( $messageToken['contact'] ) ) { 
@@ -225,10 +250,8 @@ class CRM_Contact_Form_Task_PDFLetterCommon
                 $returnProperties[$value] = 1; 
             }
         }
-                    
-        require_once 'api/v2/utils.php';
-        require_once 'CRM/Mailing/BAO/Mailing.php';
-        $mailing = new CRM_Mailing_BAO_Mailing();
+           
+
         if ( defined( 'CIVICRM_MAIL_SMARTY' ) &&
              CIVICRM_MAIL_SMARTY ) {
             require_once 'CRM/Core/Smarty/resources/String.php';
@@ -237,10 +260,18 @@ class CRM_Contact_Form_Task_PDFLetterCommon
 
         $skipOnHold   = isset( $form->skipOnHold ) ? $form->skipOnHold : false;
         $skipDeceased = isset( $form->skipDeceased ) ? $form->skipDeceased : true;
+
+        require_once 'CRM/Utils/Token.php';
         foreach ($form->_contactIds as $item => $contactId) {
             $params  = array( 'contact_id'  => $contactId );
             
-			list( $contact ) = $mailing->getDetails($params, $returnProperties, $skipOnHold, $skipDeceased );
+			list( $contact ) = CRM_Utils_Token::getTokenDetails($params,
+                                                                $returnProperties,
+                                                                $skipOnHold,
+                                                                $skipDeceased,
+                                                                null,
+                                                                $messageToken,
+                                                                'CRM_Contact_Form_Task_PDFLetterCommon' );
             if ( civicrm_error( $contact ) ) {
                 $notSent[] = $contactId;
                 continue;

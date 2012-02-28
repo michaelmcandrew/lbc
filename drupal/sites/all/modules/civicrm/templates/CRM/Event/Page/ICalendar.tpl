@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -34,6 +34,7 @@
     <th>{ts}Location{/ts}</th>
     <th>{ts}Category{/ts}</th>
     <th>{ts}Email{/ts}</th>
+    {if $registration_links}<th>{ts}Register{/ts}</th>{/if}
 </tr>
 </thead>
 {foreach from=$events key=uid item=event}
@@ -44,7 +45,7 @@
         {if $event.start_date}{$event.start_date|crmDate}{if $event.end_date}<br /><em>{ts}through{/ts}</em><br />{strip}
             {* Only show end time if end date = start date *}
             {if $event.end_date|date_format:"%Y%m%d" == $event.start_date|date_format:"%Y%m%d"}
-                {$event.end_date|date_format:"%I:%M %p"}
+                {$event.end_date|crmDate:0:1}
             {else}
                 {$event.end_date|crmDate}
             {/if}{/strip}{/if}
@@ -53,6 +54,7 @@
     <td>{if $event.is_show_location EQ 1 AND $event.location}{$event.location}{else}{ts}(not available){/ts}{/if}</td>
     <td>{if $event.event_type}{$event.event_type}{else}&nbsp;{/if}</td>
     <td>{if $event.contact_email}<a href="mailto:{$event.contact_email}">{$event.contact_email}</a>{else}&nbsp;{/if}</td>
+    {if $registration_links}<td><a href="{$event.registration_link}">{$event.registration_link_text}</a></td>{/if}
 </tr>
 {/foreach}
 </table>

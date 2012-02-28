@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -344,9 +344,9 @@ class CRM_Import_Form_MapField extends CRM_Core_Form
         $dataPatterns     = $this->get( 'dataPatterns' );
         $hasLocationTypes = $this->get( 'fieldTypes' );
                 
-        $this->_location_types  =& CRM_Core_PseudoConstant::locationType();
+        $this->_location_types  = CRM_Core_PseudoConstant::locationType();
 
-        $defaultLocationType =& CRM_Core_BAO_LocationType::getDefault();
+        $defaultLocationType = CRM_Core_BAO_LocationType::getDefault();
 
         /* FIXME: dirty hack to make the default option show up first.  This
          * avoids a mozilla browser bug with defaults on dynamically constructed
@@ -420,7 +420,7 @@ class CRM_Import_Form_MapField extends CRM_Core_Form
                 
                 $relatedFields = array();
                 require_once 'CRM/Contact/BAO/Contact.php'; 
-                $relatedFields =& CRM_Contact_BAO_Contact::importableFields( $cType );
+                $relatedFields = CRM_Contact_BAO_Contact::importableFields( $cType );
                 unset($relatedFields['']);
                 $values = array();
                 foreach ($relatedFields as $name => $field ) {
@@ -809,7 +809,7 @@ class CRM_Import_Form_MapField extends CRM_Core_Form
                     if ( $selOne == 'url' ) {
                         $relatedContactWebsiteTypeVal = $websiteTypes[$selTwo];
                     } else {
-                        $relatedContactLocTypeVal = $locationTypes[$selTwo];
+                        $relatedContactLocTypeVal = CRM_Utils_Array::value( $selTwo, $locationTypes );
                         if ( $selThree ) {
                             if ( $selOne == 'phone' ) {
                                 $relatedContactPhoneTypeVal = $phoneTypes[$selThree];
@@ -860,7 +860,7 @@ class CRM_Import_Form_MapField extends CRM_Core_Form
         //Updating Mapping Records
         if ( CRM_Utils_Array::value('updateMapping', $params)) {
             
-            $locationTypes =& CRM_Core_PseudoConstant::locationType();            
+            $locationTypes = CRM_Core_PseudoConstant::locationType();            
 
             $mappingFields = new CRM_Core_DAO_MappingField();
             $mappingFields->mapping_id = $params['mappingId'];
@@ -931,7 +931,7 @@ class CRM_Import_Form_MapField extends CRM_Core_Form
             
             $saveMapping = CRM_Core_BAO_Mapping::add( $mappingParams );
             
-            $locationTypes =& CRM_Core_PseudoConstant::locationType();
+            $locationTypes = CRM_Core_PseudoConstant::locationType();
             $contactType = $this->get('contactType');
             switch ($contactType) {
             case CRM_Import_Parser::CONTACT_INDIVIDUAL :
@@ -1000,11 +1000,17 @@ class CRM_Import_Form_MapField extends CRM_Core_Form
         
         $primaryKeyName = $this->get( 'primaryKeyName' );
         $statusFieldName = $this->get( 'statusFieldName' );
-        $parser->run( $this->_importTableName, $mapper,
+        $parser->run( $this->_importTableName,
+                      $mapper,
                       CRM_Import_Parser::MODE_PREVIEW,
                       $this->get('contactType'),
-                      $primaryKeyName, $statusFieldName, $this->_onDuplicate, 
-                      null, null, false, CRM_Import_Parser::DEFAULT_TIMEOUT, $this->get('contactSubType') );
+                      $primaryKeyName,
+                      $statusFieldName,
+                      $this->_onDuplicate, 
+                      null, null, false,
+                      CRM_Import_Parser::DEFAULT_TIMEOUT,
+                      $this->get('contactSubType'),
+                      $this->get('dedupe') );
         
         // add all the necessary variables to the form
         $parser->set( $this );        

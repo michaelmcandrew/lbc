@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -70,9 +70,7 @@ class CRM_Profile_Form_Edit extends CRM_Profile_Form
         //set the block no
         $this->_blockNo = CRM_Utils_Request::retrieve( 'blockNo', 'String', $this );
             
-        if ( $this->_context ) {
-            $this->assign( 'context', $this->_context );
-        }
+        $this->assign( 'context', $this->_context );
 
         if ( $this->_blockNo ) {
             $this->assign( 'blockNo', $this->_blockNo );
@@ -122,7 +120,7 @@ SELECT module
    AND uf_group_id = %1
 ";
         $params = array( 1 => array( $this->_gid, 'Integer' ) );
-        $dao =& CRM_Core_DAO::executeQuery( $query, $params );
+        $dao = CRM_Core_DAO::executeQuery( $query, $params );
         if ( ! $dao->fetch( ) ) {
             CRM_Core_Error::fatal( ts( 'The requested Profile (gid=%1) is not configured to be used for \'Profile\' edit and view forms in its Settings. Contact the site administrator if you need assistance.',
                                       array( 1 => $this->_gid )) );        
@@ -168,8 +166,15 @@ SELECT module
                 if ( $this->_context == 'Search' ) {
                     $this->_postURL = CRM_Utils_System::url( 'civicrm/contact/search' );
                 } elseif ( $this->_id && $this->_gid ) {
-                   $this->_postURL = CRM_Utils_System::url('civicrm/profile/view',
-                                                            "reset=1&id={$this->_id}&gid={$gidString}" );
+                    $urlParams = "reset=1&id={$this->_id}&gid={$gidString}";
+                    if ( $this->_isContactActivityProfile && $this->_activityId ) {
+                        $urlParams .= "&aid={$this->_activityId}";  
+                    }
+                    // get checksum if present
+                    if ( $this->get( 'cs' ) ) {
+                        $urlParams .= "&cs=" . $this->get( 'cs' );
+                    }
+                    $this->_postURL = CRM_Utils_System::url('civicrm/profile/view', $urlParams);
                 }
             }
             
@@ -262,8 +267,30 @@ SELECT module
                 $gidString = implode( ',', $this->_profileIds );
             }
 
-            $url = CRM_Utils_System::url( 'civicrm/profile/view',
-                                          "reset=1&id={$this->_id}&gid={$gidString}" );
+            $urlParams = "reset=1&id={$this->_id}&gid={$gidString}";
+            if ( $this->_isContactActivityProfile && $this->_activityId ) {
+                $urlParams .= "&aid={$this->_activityId}";  
+            }
+            // get checksum if present
+            if ( $this->get( 'cs' ) ) {
+                $urlParams .= "&cs=" . $this->get( 'cs' );
+            }
+            $url = CRM_Utils_System::url( 'civicrm/profile/view', $urlParams );
+        } else {
+            // Replace tokens from post URL
+            $contactParams  = array( 'contact_id' => $this->_id,
+                                     'version'    => 3 );
+            require_once 'api/api.php';
+            $contact = civicrm_api( 'contact', 'get', $contactParams );
+            $contact = reset( $contact['values'] );
+            
+            require_once 'CRM/Mailing/BAO/Mailing.php';
+            $dummyMail = new CRM_Mailing_BAO_Mailing(); 
+            $dummyMail->body_text = $this->_postURL;
+            $tokens = $dummyMail->getTokens();
+            
+            require_once 'CRM/Utils/Token.php';
+            $url = CRM_Utils_Token::replaceContactTokens($this->_postURL, $contact, false, CRM_Utils_Array::value('text', $tokens));
         }
 
         $session->replaceUserContext( $url );
@@ -292,9 +319,8 @@ SELECT module
                 $message .= '<p>';
             }
             
-            if ( function_exists( 'drupal_set_message' ) ) {
-                drupal_set_message( $message );
-            }
+            require_once 'CRM/Utils/System.php';
+            CRM_Utils_System::setUFMessage( $message );
             
             $message = urlencode( $message );
 

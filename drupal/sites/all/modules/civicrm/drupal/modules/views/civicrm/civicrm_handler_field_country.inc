@@ -1,7 +1,7 @@
 <?php
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -31,11 +31,12 @@
  *
  */
 
-class civicrm_handler_field_country extends views_handler_field {
+class civicrm_handler_field_country extends civicrm_handler_field_address {
     static $_countries;
     static $_countries_full;
 
     function construct( ) {
+        parent::construct();
         if ( ! self::$_countries ) {
             if ( ! civicrm_initialize( ) ) {
                 return;

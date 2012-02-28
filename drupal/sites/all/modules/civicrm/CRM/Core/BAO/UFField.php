@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -292,7 +292,7 @@ class CRM_Core_BAO_UFField extends CRM_Core_DAO_UFField
                         WHERE  civicrm_custom_field.custom_group_id = civicrm_custom_group.id
                           AND  civicrm_custom_group.id = %1";
         $p = array( 1 => array( $customGroupId, 'Integer' ) );
-        $dao =& CRM_Core_DAO::executeQuery($queryString, $p);
+        $dao = CRM_Core_DAO::executeQuery($queryString, $p);
         
         while ($dao->fetch()) {
             //enable/ disable profile
@@ -330,6 +330,102 @@ class CRM_Core_BAO_UFField extends CRM_Core_DAO_UFField
         } 
     }
 
+    /*
+     * Function to find out whether given profile group using Activity
+     * Profile fields with contact fields
+     */
+    static function checkContactActivityProfileType( $ufGroupId ) {        
+        $ufGroup = new CRM_Core_DAO_UFGroup();
+        $ufGroup->id = $ufGroupId;
+        $ufGroup->find( true );
+        
+        $profileTypes = array( );
+        if ( $ufGroup->group_type ) {
+            $typeParts    = explode(CRM_Core_DAO::VALUE_SEPARATOR, $ufGroup->group_type);
+            $profileTypes = explode( ',', $typeParts[0] );
+        }
+        
+        if ( empty($profileTypes) ) {
+            return false;
+        }
+        $components   = array( 'Contribution', 'Participant', 'Membership' );
+        if ( !in_array('Activity', $profileTypes) ) {
+            return false;
+        } else if ( count($profileTypes) == 1 ) {
+            return false;
+        }
+        
+        if ( $index = array_search('Contact', $profileTypes) ) {
+            unset($profileTypes[$index]);
+            if (count($profileTypes) == 1) {
+                return true;
+            }
+        }
+
+        $contactTypes = array( 'Individual', 'Household', 'Organization' );
+        require_once 'CRM/Contact/BAO/ContactType.php';
+        $subTypes     = CRM_Contact_BAO_ContactType::subTypes( );
+        
+        $profileTypeComponent = array_intersect($components, $profileTypes);
+        if ( !empty($profileTypeComponent) ||
+             count(array_intersect($contactTypes, $profileTypes) ) > 1 ||
+             count(array_intersect($subTypes, $profileTypes) ) > 1 ) {
+            return false;
+        }
+  
+        return true;
+    }
+
+    /* Function to find out whether given profile group uses $required 
+     * and/or $optionalprofile types
+     *  
+     * @param integer $ufGroupId  profile id
+     * @param array   $required   array of types those are required
+     * @param array   $optional   array of types those are optional
+     *
+     * @return boolean $valid  
+     * @static
+     */
+    static function checkValidProfileType( $ufGroupId, $required, $optional = null ) 
+    { 
+        if ( !is_array( $required ) || empty( $required ) ) {
+            return;
+        }
+
+        require_once 'CRM/Core/DAO/UFGroup.php';
+        $ufGroup     = new CRM_Core_DAO_UFGroup( );
+        $ufGroup->id = $ufGroupId;
+        $ufGroup->find( true );
+        
+        $profileTypes = array( );
+        if ( $ufGroup->group_type ) {
+            $typeParts    = explode( CRM_Core_DAO::VALUE_SEPARATOR, $ufGroup->group_type );
+            $profileTypes = explode( ',', $typeParts[0] );
+        }
+        
+        if ( empty( $profileTypes ) ) {
+            return false;
+        }
+        
+        $valid = true;
+        foreach ( $required as $key => $val ) {
+            if ( !in_array( $val, $profileTypes ) ) {
+                $valid = false;
+                break;
+            }
+        }
+
+        if ( $valid && is_array( $optional ) ) {
+            foreach ( $optional as $key => $val ) {
+                if ( in_array( $val, $profileTypes ) ) {
+                    $valid = true;
+                    break;
+                }
+            }
+        }
+                
+        return $valid;
+    }       
 
     /**
      * function to check for mix profile fields (eg: individual + other contact types)
@@ -350,7 +446,8 @@ class CRM_Core_BAO_UFField extends CRM_Core_DAO_UFField
         
         $profileTypes = array( );
         if ( $ufGroup->group_type ) {
-            $profileTypes = explode( ',',  $ufGroup->group_type );
+            $typeParts    = explode(CRM_Core_DAO::VALUE_SEPARATOR, $ufGroup->group_type);
+            $profileTypes = explode( ',',  $typeParts[0] );
         }
         
         //early return if new profile. 
@@ -371,7 +468,7 @@ class CRM_Core_BAO_UFField extends CRM_Core_DAO_UFField
         CRM_Contact_BAO_ContactType::suppressSubTypes( $profileTypes );
 
         $contactTypes = array( 'Contact', 'Individual', 'Household', 'Organization' );
-        $components   = array( 'Contribution', 'Participant', 'Membership' );
+        $components   = array( 'Contribution', 'Participant', 'Membership', 'Activity' );
         $fields = array( );
 
         // check for mix profile condition
@@ -415,7 +512,7 @@ class CRM_Core_BAO_UFField extends CRM_Core_DAO_UFField
         require_once 'CRM/Contact/BAO/ContactType.php';
         $subTypes     = CRM_Contact_BAO_ContactType::subTypes( );
 
-        $components   = array( 'Contribution', 'Participant', 'Membership' );
+        $components   = array( 'Contribution', 'Participant', 'Membership', 'Activity' );
 
         require_once 'CRM/Core/DAO/UFGroup.php';
         $ufGroup = new CRM_Core_DAO_UFGroup( );
@@ -426,7 +523,8 @@ class CRM_Core_BAO_UFField extends CRM_Core_DAO_UFField
         
         $profileTypes = array( );
         if ( $ufGroup->group_type ) {
-            $profileTypes = explode( ',',  $ufGroup->group_type );
+            $typeParts    = explode(CRM_Core_DAO::VALUE_SEPARATOR, $ufGroup->group_type);
+            $profileTypes = explode( ',', $typeParts[0] );
         }
         
         if ( $onlyPure ) {
@@ -518,7 +616,7 @@ SELECT ufg.id as id
    AND ufj.module = 'User Registration'
    AND ufg.is_active = 1 ";
 
-        $ufGroup =& CRM_Core_DAO::executeQuery( $query );
+        $ufGroup = CRM_Core_DAO::executeQuery( $query );
         
         $fields = array( );
         $validProfiles = array( 'Individual', 'Organization', 'Household', 'Contribution' );

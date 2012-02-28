@@ -1,7 +1,7 @@
 <?php
 /*
 +--------------------------------------------------------------------+
-| CiviCRM version 4.0                                                |
+| CiviCRM version 4.1                                                |
 +--------------------------------------------------------------------+
 | Copyright CiviCRM LLC (c) 2004-2011                                |
 +--------------------------------------------------------------------+
@@ -58,7 +58,7 @@ class CRM_Contact_DAO_DashboardContact extends CRM_Core_DAO
     static $_links = null;
     /**
      * static instance to hold the values that can
-     * be imported / apu
+     * be imported
      *
      * @var array
      * @static
@@ -66,7 +66,7 @@ class CRM_Contact_DAO_DashboardContact extends CRM_Core_DAO
     static $_import = null;
     /**
      * static instance to hold the values that can
-     * be exported / apu
+     * be exported
      *
      * @var array
      * @static
@@ -127,6 +127,18 @@ class CRM_Contact_DAO_DashboardContact extends CRM_Core_DAO
      * @var int
      */
     public $weight;
+    /**
+     * dashlet content
+     *
+     * @var longtext
+     */
+    public $content;
+    /**
+     * When was content populated
+     *
+     * @var datetime
+     */
+    public $created_date;
     /**
      * class constructor
      *
@@ -203,6 +215,16 @@ class CRM_Contact_DAO_DashboardContact extends CRM_Core_DAO
                     'type' => CRM_Utils_Type::T_INT,
                     'title' => ts('Weight') ,
                 ) ,
+                'content' => array(
+                    'name' => 'content',
+                    'type' => CRM_Utils_Type::T_LONGTEXT,
+                    'title' => ts('Content') ,
+                ) ,
+                'created_date' => array(
+                    'name' => 'created_date',
+                    'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
+                    'title' => ts('Created Date') ,
+                ) ,
             );
         }
         return self::$_fields;
@@ -237,7 +259,7 @@ class CRM_Contact_DAO_DashboardContact extends CRM_Core_DAO
     {
         if (!(self::$_import)) {
             self::$_import = array();
-            $fields = & self::fields();
+            $fields = self::fields();
             foreach($fields as $name => $field) {
                 if (CRM_Utils_Array::value('import', $field)) {
                     if ($prefix) {
@@ -260,7 +282,7 @@ class CRM_Contact_DAO_DashboardContact extends CRM_Core_DAO
     {
         if (!(self::$_export)) {
             self::$_export = array();
-            $fields = & self::fields();
+            $fields = self::fields();
             foreach($fields as $name => $field) {
                 if (CRM_Utils_Array::value('export', $field)) {
                     if ($prefix) {

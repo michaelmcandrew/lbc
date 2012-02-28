@@ -6,8 +6,7 @@ require_once 'api/v3/utils.php';
  *  returns the list of all the entities that you can manipulate via the api. The entity of this API call is the entity, that isn't a real civicrm entity as in something stored in the DB, but an abstract meta object. My head is going to explode. In a meta way.
  */
 function civicrm_api3_entity_get ($params) {
-  _civicrm_api3_initialize( true );
-   try {
+
      civicrm_api3_verify_mandatory ($params);
      $entities = array ();
      $iterator = new DirectoryIterator(dirname(__FILE__));
@@ -18,13 +17,10 @@ function civicrm_api3_entity_get ($params) {
          $entities [] = substr ($file, 0, -4); // without the ".php"
        }
     }
+    $entities = array_diff($entities, array('Generic'));
     sort($entities);
     return civicrm_api3_create_success ($entities);
-  } catch (PEAR_Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  } catch (Exception $e) {
-    return civicrm_api3_create_error( $e->getMessage() );
-  }
+
 }
 
 /**
@@ -45,5 +41,7 @@ function civicrm_api3_entity_delete ($params) {
  *  Placeholder function. This should never be called, as it doesn't have any meaning
  */
 function civicrm_api3_entity_getfields ($params) {
-  return civicrm_api3_create_error ("API (Entity,getfields) does not exist entity_get only returns the list of entities you can access from the API, no fields");
+    // we return an empty array so it makes it easier to write generic getdefaults / required tests
+    // without putting an exception in for entity
+    return civicrm_api3_create_success( array( ) );
 }

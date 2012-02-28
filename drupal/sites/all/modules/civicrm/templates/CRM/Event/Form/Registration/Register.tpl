@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -46,11 +46,17 @@
 
 {if $contact_id}
 <div class="messages status">
-    {ts 1=$display_name}Welcome %1{/ts}. (<a href="{crmURL p='civicrm/event/register' q="&cid=0&reset=1&id=`$event.id`"}" title="{ts}Click here to register a different person for this event.{/ts}">{ts 1=$display_name}Not %1, or want to register a different person{/ts}</a>?)</div>
+    {ts 1=$display_name}Welcome %1{/ts}. (<a href="{crmURL p='civicrm/event/register' q="cid=0&reset=1&id=`$event.id`"}" title="{ts}Click here to register a different person for this event.{/ts}">{ts 1=$display_name}Not %1, or want to register a different person{/ts}</a>?)</div>
 {/if}
 {if $event.intro_text}
     <div id="intro_text" class="crm-section intro_text-section">
         <p>{$event.intro_text}</p>
+    </div>
+{/if}
+
+{if $pcpSupporterText}
+    <div class="crm-section pcpSupporterText-section">
+        <div class="content">{$pcpSupporterText}</div>
     </div>
 {/if}
 
@@ -67,7 +73,7 @@
 
 {if $priceSet}
     <fieldset id="priceset" class="crm-group priceset-group"><legend>{$event.fee_label}</legend>
-        {include file="CRM/Price/Form/PriceSet.tpl"}
+        {include file="CRM/Price/Form/PriceSet.tpl" extends="Event"}
 	{include file="CRM/Price/Form/ParticipantCount.tpl"}
     </fieldset>
     {if $form.is_pay_later}
@@ -93,6 +99,41 @@
             </div>
         {/if}
     {/if}
+{/if}
+
+{if $pcp && $is_honor_roll }
+    <fieldset class="crm-group pcp-group">
+        <div class="crm-section pcp-section">
+            <div class="crm-section display_in_roll-section">
+                <div class="content">
+                    {$form.pcp_display_in_roll.html} &nbsp;
+                    {$form.pcp_display_in_roll.label}
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div id="nameID" class="crm-section is_anonymous-section">
+                <div class="content">
+                    {$form.pcp_is_anonymous.html}
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div id="nickID" class="crm-section pcp_roll_nickname-section">
+                <div class="label">{$form.pcp_roll_nickname.label}</div>
+                <div class="content">{$form.pcp_roll_nickname.html}
+                <div class="description">{ts}Enter the name you want listed with this contribution. You can use a nick name like 'The Jones Family' or 'Sarah and Sam'.{/ts}</div>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div id="personalNoteID" class="crm-section pcp_personal_note-section">
+                <div class="label">{$form.pcp_personal_note.label}</div>
+                <div class="content">
+                    {$form.pcp_personal_note.html}
+                    <div class="description">{ts}Enter a message to accompany this contribution.{/ts}</div>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </fieldset>
 {/if}
 
 {assign var=n value=email-$bltID}
@@ -143,6 +184,7 @@
 
 {literal} 
 <script type="text/javascript">
+    {/literal}{if $pcp && $is_honor_roll }pcpAnonymous();{/if}{literal}
 
     function allowParticipant( ) { 		
 	{/literal}{if $allowGroupOnWaitlist}{literal}
@@ -257,5 +299,30 @@
          showHidePaymentInfo( );
       {/literal}{/if}{literal}
     }
+    
+    {/literal}{if $pcp && $is_honor_roll }{literal}
+    function pcpAnonymous( ) {
+        // clear nickname field if anonymous is true
+        if ( document.getElementsByName("pcp_is_anonymous")[1].checked ) { 
+            document.getElementById('pcp_roll_nickname').value = '';
+        }
+        if ( ! document.getElementsByName("pcp_display_in_roll")[0].checked ) { 
+            hide('nickID', 'block');
+            hide('nameID', 'block');
+    	hide('personalNoteID', 'block');
+        } else {
+            if ( document.getElementsByName("pcp_is_anonymous")[0].checked ) {
+                show('nameID', 'block');
+                show('nickID', 'block');
+    	        show('personalNoteID', 'block');
+            } else {
+                show('nameID', 'block');
+                hide('nickID', 'block');
+    	    hide('personalNoteID', 'block');
+            }
+        }
+    }
+    {/literal}{/if}{literal}
+
 </script>
 {/literal} 

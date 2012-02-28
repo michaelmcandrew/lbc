@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -116,11 +116,11 @@ class CRM_Event_Form_ParticipantView extends CRM_Core_Form
         $finalTree  = array( );
         
         foreach ( $allRoleIDs as $k => $v ) {
-            $roleGroupTree      =& CRM_Core_BAO_CustomGroup::getTree( 'Participant', $this, $participantID, null, $v, $roleCustomDataTypeID );
+            $roleGroupTree      = CRM_Core_BAO_CustomGroup::getTree( 'Participant', $this, $participantID, null, $v, $roleCustomDataTypeID );
             $eventGroupTree     =& CRM_Core_BAO_CustomGroup::getTree( 'Participant', $this, $participantID, null, 
                                                                       $values[$participantID]['event_id'], $eventNameCustomDataTypeID );
             $eventTypeID        = CRM_Core_DAO::getFieldValue( "CRM_Event_DAO_Event", $values[$participantID]['event_id'], 'event_type_id', 'id' );
-            $eventTypeGroupTree =& CRM_Core_BAO_CustomGroup::getTree( 'Participant', $this, $participantID, null, $eventTypeID, $eventTypeCustomDataTypeID );
+            $eventTypeGroupTree = CRM_Core_BAO_CustomGroup::getTree( 'Participant', $this, $participantID, null, $eventTypeID, $eventTypeCustomDataTypeID );
             $groupTree = CRM_Utils_Array::crmArrayMerge( $roleGroupTree, $eventGroupTree );
             $groupTree = CRM_Utils_Array::crmArrayMerge( $groupTree, $eventTypeGroupTree );
             $groupTree = CRM_Utils_Array::crmArrayMerge( $groupTree, CRM_Core_BAO_CustomGroup::getTree( 'Participant', $this, $participantID ) );
@@ -174,7 +174,8 @@ class CRM_Event_Form_ParticipantView extends CRM_Core_Form
         }
         $this->assign( 'displayName', $displayName );
          
-        $title = $displayName . ' (' . $participantRoles[$values[$participantID]['role_id']] . ' - ' . $eventTitle . ')' ;
+        $roleId = CRM_Utils_Array::value( 'role_id', $values[$participantID] );
+        $title = $displayName . ' (' . CRM_Utils_Array::value( $roleId, $participantRoles ) . ' - ' . $eventTitle . ')';
         
         require_once 'CRM/Core/DAO.php';
         $sep = CRM_Core_DAO::VALUE_SEPARATOR;

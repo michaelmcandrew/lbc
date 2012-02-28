@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -48,14 +48,19 @@ function civicrm_rules_civicrm_post( $op, $objectName, $objectId, &$objectRef ) 
     }
 
 	// process only contacts for now
-	$validObjects = array( 'Contact',
-                           );
+	$validObjects = variable_get('civicrm_rules_post_entities', array( ));
 
-	if ( ! in_array( $objectName, $validObjects ) ) {
+    $eventObject = strtolower( $objectName );
+	if ( !in_array($eventObject, $validObjects ) && 
+         !in_array($eventObject, array('contact')) ) {
 		return;
 	}
 
-    $eventObject = strtolower( $objectName );
+    if($eventObject != 'contact'){
+        // without the civicrm prefix too much chance of another drupal module being enabled
+        $eventObject = 'civicrm_' . $eventObject;
+    }
+
 	$eventName = null;
 	switch ( $op ) {
     case 'create':
@@ -138,7 +143,11 @@ FROM   civicrm_mailing
             break;
             
         case 'CRM_Mailing_Form_Approve':
-            $mailingId = $form->get( 'mid' );
+            if ( $form->_mailingID ) {
+                $mailingId = $form->_mailingID;
+            } else {
+                $mailingId = $form->get( 'mid' );
+            }
             $eventName = 'mailing_approved';
             break;
             
@@ -165,4 +174,25 @@ FROM   civicrm_mailing
         }
     }
 }
+/*
+* Implementation of hook_perm().
+*/
+function civicrm_rules_perm() 
+{
+    return array('access civicrm rules settings');
+}
 
+function civicrm_rules_menu() {
+
+    $items['admin/config/civicrm/rules'] = array(
+                                                   'title' => t('CiviCRM Rules settings'),
+                                                   'description' => t('CiviCRM Rules Configuration'),
+                                                   'page callback' => 'drupal_get_form',
+                                                   'page arguments' => array('civicrm_rules_admin_settings'),
+                                                   'access arguments' => array('access civicrm rules settings'),
+                                                   'file'	=> 'civicrm_rules_admin_form.inc',
+                                                   'type' => MENU_NORMAL_ITEM,
+                                                   );
+    return $items;
+
+}

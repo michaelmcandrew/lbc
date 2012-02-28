@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -38,7 +38,7 @@
         <div id="field_page">
         {if not ($action eq 2 or $action eq 1)}
             <div class="action-link">
-                <a href="{crmURL p="civicrm/admin/uf/group/field/add" q="reset=1&action=add&gid=$gid"}" class="button"><span><div class="icon add-icon"></div>{ts}Add Field{/ts}</span></a><a href="{crmURL p="civicrm/admin/uf/group/update" q="action=update&id=`$gid`&reset=1&context=field"}" class="button"><span><div class="icon edit-icon"></div>{ts}Edit Settings{/ts}</span></a><a href="{crmURL p="civicrm/admin/uf/group" q="action=preview&id=`$gid`&reset=1&field=0&context=field"}" class="button"><span><div class="icon preview-icon"></div>{ts}Preview (all fields){/ts}</span></a>{if !$skipCreate }<a href="{crmURL p="civicrm/profile/create" q="gid=$gid&reset=1"}" class="button"><span><div class="icon play-icon"></div>{ts}Use (create mode){/ts}</span></a>{/if}
+                <a href="{crmURL p="civicrm/admin/uf/group/field/add" q="reset=1&action=add&gid=$gid"}" class="button"><span><div class="icon add-icon"></div>{ts}Add Field{/ts}</span></a>{if !$isGroupReserved}<a href="{crmURL p="civicrm/admin/uf/group/update" q="action=update&id=`$gid`&reset=1&context=field"}" class="button"><span><div class="icon edit-icon"></div>{ts}Edit Settings{/ts}</span></a>{/if}<a href="{crmURL p="civicrm/admin/uf/group" q="action=preview&id=`$gid`&reset=1&field=0&context=field"}" class="button"><span><div class="icon preview-icon"></div>{ts}Preview (all fields){/ts}</span></a>{if !$skipCreate }<a href="{crmURL p="civicrm/profile/create" q="gid=$gid&reset=1"}" class="button"><span><div class="icon play-icon"></div>{ts}Use (create mode){/ts}</span></a>{/if}
                 <div class="clear"></div>
             </div>
         {/if}
@@ -50,11 +50,12 @@
             <thead>
             <tr>
                 <th>{ts}Field Name{/ts}</th>
+                {if in_array("Profile",$otherModules) or in_array("Search Profile",$otherModules) }
                 <th>{ts}Visibility{/ts}</th>
                 <th>{ts}Searchable?{/ts}</th>
                 <th>{ts}In Selector?{/ts}</th>
-                <th id="order" class="sortable">{ts}Order{/ts}</th>
-                <th>{ts}Active{/ts}</th>	
+                {/if}
+                <th id="order" class="sortable">{ts}Order{/ts}</th>	
                 <th>{ts}Required{/ts}</th>	
                 <th>{ts}View Only{/ts}</th>	
                 <th>{ts}Reserved{/ts}</th>
@@ -65,11 +66,12 @@
             {foreach from=$ufField item=row}
             <tr id="row_{$row.id}"class="{cycle values="odd-row,even-row"} {$row.class}{if NOT $row.is_active} disabled{/if}">
                 <td>{$row.label}<br/>({$row.field_type})</td>
+                {if in_array("Profile",$otherModules) or in_array("Search Profile",$otherModules) }
                 <td>{$row.visibility_display}</td>
                 <td>{if $row.is_searchable   eq 1} {ts}Yes{/ts} {else} {ts}No{/ts} {/if}</td>
                 <td>{if $row.in_selector     eq 1} {ts}Yes{/ts} {else} {ts}No{/ts} {/if}</td>
+                {/if}
                 <td class="nowrap">{$row.order}</td>
-                <td id="row_{$row.id}_status">{if $row.is_active eq 1}       {ts}Yes{/ts} {else} {ts}No{/ts} {/if}</td>
                 <td>{if $row.is_required     eq 1} {ts}Yes{/ts} {else} {ts}No{/ts} {/if}</td>
                 <td>{if $row.is_view         eq 1} {ts}Yes{/ts} {else} {ts}No{/ts} {/if}</td>
                 <td>{if $row.is_reserved     eq 1} {ts}Yes{/ts} {else} {ts}No{/ts} {/if}</td>
@@ -81,7 +83,7 @@
         {/strip}
         {if not ($action eq 2 or $action eq 1)}
             <div class="action-link">
-                <a href="{crmURL p="civicrm/admin/uf/group/field/add" q="reset=1&action=add&gid=$gid"}" class="button"><span><div class="icon add-icon"></div>{ts}Add Field{/ts}</span></a><a href="{crmURL p="civicrm/admin/uf/group" q="action=update&id=`$gid`&reset=1&context=field"}" class="button"><span><div class="icon edit-icon"></div>{ts}Edit Settings{/ts}</span></a><a href="{crmURL p="civicrm/admin/uf/group" q="action=preview&id=`$gid`&reset=1&field=0&context=field"}" class="button"><span><div class="icon preview-icon"></div>{ts}Preview (all fields){/ts}</span></a>{if !$skipCreate }<a href="{crmURL p="civicrm/profile/create" q="gid=$gid&reset=1"}" class="button"><span><div class="icon play-icon"></div>{ts}Use (create mode){/ts}</span></a>{/if}
+                <a href="{crmURL p="civicrm/admin/uf/group/field/add" q="reset=1&action=add&gid=$gid"}" class="button"><span><div class="icon add-icon"></div>{ts}Add Field{/ts}</span></a>{if !$isGroupReserved}<a href="{crmURL p="civicrm/admin/uf/group" q="action=update&id=`$gid`&reset=1&context=field"}" class="button"><span><div class="icon edit-icon"></div>{ts}Edit Settings{/ts}</span></a>{/if}<a href="{crmURL p="civicrm/admin/uf/group" q="action=preview&id=`$gid`&reset=1&field=0&context=field"}" class="button"><span><div class="icon preview-icon"></div>{ts}Preview (all fields){/ts}</span></a>{if !$skipCreate }<a href="{crmURL p="civicrm/profile/create" q="gid=$gid&reset=1"}" class="button"><span><div class="icon play-icon"></div>{ts}Use (create mode){/ts}</span></a>{/if}
                 <div class="clear"></div>
             </div>
         {/if}    

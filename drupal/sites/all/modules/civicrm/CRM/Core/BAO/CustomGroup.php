@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -229,12 +229,15 @@ class CRM_Core_BAO_CustomGroup extends CRM_Core_DAO_CustomGroup
      */
     static function setIsActive( $id, $is_active ) 
     {
+        // reset the cache
+        require_once 'CRM/Core/BAO/Cache.php';
+        CRM_Core_BAO_Cache::deleteGroup( 'contact fields' );
+
         require_once 'CRM/Core/BAO/UFField.php';
-        if( $is_active ) {
-            //CRM_Core_BAO_UFField::setUFFieldStatus($id, $is_active);
-        } else {
+        if ( ! $is_active ) {
             CRM_Core_BAO_UFField::setUFFieldStatus($id, $is_active);
         }
+
         return CRM_Core_DAO::setFieldValue( 'CRM_Core_DAO_CustomGroup', $id, 'is_active', $is_active );
     }
 
@@ -337,14 +340,32 @@ LEFT JOIN civicrm_custom_field ON (civicrm_custom_field.custom_group_id = civicr
         }
 
         if ( $subType ) {
-            $subType  = CRM_Core_DAO::VALUE_SEPARATOR . 
-                trim($subType, CRM_Core_DAO::VALUE_SEPARATOR) . CRM_Core_DAO::VALUE_SEPARATOR;
+            $subTypeClause = '';
+            if ( is_array( $subType ) ) {
+                $subType = implode(',',  $subType);
+            }
+            if ( strpos($subType, ',' ) ) {
+                $subTypeParts = explode(',',  $subType);
+                $subTypeClauses = array( );
+                foreach($subTypeParts as $subTypePart ) {
+                    $subTypePart = CRM_Core_DAO::VALUE_SEPARATOR . 
+                        trim($subTypePart, CRM_Core_DAO::VALUE_SEPARATOR) . CRM_Core_DAO::VALUE_SEPARATOR;
+                    $subTypeClauses[] =  "civicrm_custom_group.extends_entity_column_value LIKE '%$subTypePart%'";
+                }
+                $subTypeClause = '(' . implode(' OR ',  $subTypeClauses) ." OR civicrm_custom_group.extends_entity_column_value IS NULL )";
+            } else {
+                $subType  = CRM_Core_DAO::VALUE_SEPARATOR . 
+                    trim($subType, CRM_Core_DAO::VALUE_SEPARATOR) . CRM_Core_DAO::VALUE_SEPARATOR;
+                
+                $subTypeClause = "( civicrm_custom_group.extends_entity_column_value LIKE '%$subType%'
+   OR   civicrm_custom_group.extends_entity_column_value IS NULL )";
+            }
+            
             $strWhere = "
 WHERE civicrm_custom_group.is_active = 1 
   AND civicrm_custom_field.is_active = 1 
   AND civicrm_custom_group.extends IN ($in)
-  AND ( civicrm_custom_group.extends_entity_column_value LIKE '%$subType%'
-   OR   civicrm_custom_group.extends_entity_column_value IS NULL )
+  AND $subTypeClause
 ";
             if ( $subName ) {
                 $strWhere .= " AND civicrm_custom_group.extends_entity_column_id = {$subName} ";
@@ -386,7 +407,7 @@ ORDER BY civicrm_custom_group.weight,
         $queryString = "$strSelect $strFrom $strWhere $orderBy";
         //crm_core_error::debug('$queryString', $queryString );
         // dummy dao needed
-        $crmDAO =& CRM_Core_DAO::executeQuery( $queryString, $params );
+        $crmDAO = CRM_Core_DAO::executeQuery( $queryString, $params );
         
         $customValueTables = array( );
 
@@ -555,7 +576,8 @@ SELECT $select
                                                 $entityId = CRM_Core_DAO::getFieldValue( 'CRM_Core_DAO_EntityFile',
                                                                                          $fileDAO->id,
                                                                                          'entity_id',
-                                                                                         'id' );
+                                                                                         'file_id' );
+                                                $customValue['imageURL'] = str_replace( 'persist/contribute', 'custom' ,$config->imageUploadURL) . $fileDAO->uri;
                                                 require_once 'CRM/Core/BAO/File.php';
                                                 list( $path ) = CRM_Core_BAO_File::path( $fileDAO->id, $entityId,
                                                                                          null, null);
@@ -720,7 +742,7 @@ SELECT $select
         $queryString = $select . $from . $where . $orderBy;
              
         // dummy dao needed
-        $crmDAO =& CRM_Core_DAO::executeQuery( $queryString, $params );
+        $crmDAO = CRM_Core_DAO::executeQuery( $queryString, $params );
         
         // process records
         while($crmDAO->fetch()) {
@@ -895,9 +917,14 @@ SELECT $select
             require_once 'CRM/Contact/BAO/Contact.php';
             $csType = is_numeric($entityID) ? CRM_Contact_BAO_Contact::getContactSubType($entityID) : false;
 
-            if ( $csType ) {
-                $csType = CRM_Core_DAO::VALUE_SEPARATOR . $csType . CRM_Core_DAO::VALUE_SEPARATOR;
-                $customGroupDAO->whereAdd("( extends_entity_column_value LIKE '%{$csType}%' OR extends_entity_column_value IS NULL )");
+            if ( !empty($csType) ) {
+                $subtypeClause = array( );
+                foreach ( $csType as $subtype ) {
+                    $subtype = CRM_Core_DAO::VALUE_SEPARATOR . $subtype . CRM_Core_DAO::VALUE_SEPARATOR;
+                    $subtypeClause[] = "extends_entity_column_value LIKE '%{$subtype}%'";
+                }
+                $subtypeClause[] = "extends_entity_column_value IS NULL";
+                $customGroupDAO->whereAdd("( " . implode( ' OR ', $subtypeClause ) . " )");
             } else {
                 $customGroupDAO->whereAdd("extends_entity_column_value IS NULL");
             }
@@ -1028,7 +1055,7 @@ SELECT $select
                         } else {
                             $timeElement = $elementName . '_time';
                             if ( substr( $elementName, -1 ) == ']' ) { 
-                                $timeElement = substr( $elementName, 0, $$elementName.length - 1).'_time]';
+                                $timeElement = substr( $elementName, 0, -1 ).'_time]';
                             }
                             list( $defaults[$elementName], $defaults[ $timeElement ] ) = 
                             CRM_Utils_Date::setDateDefaults( $value, null, $field['date_format'], $field['time_format'] );
@@ -1059,7 +1086,7 @@ SELECT $select
                 case 'Autocomplete-Select':
                     $hiddenEleName = $elementName . '_id';
                     if ( substr( $elementName, -1 ) == ']' ) { 
-                        $hiddenEleName = substr( $elementName, 0, $elementName.length - 1 ).'_id]';
+                        $hiddenEleName = substr( $elementName, 0, -1 ).'_id]';
                     }
                     if ($field['data_type'] == "ContactReference") {
                         require_once 'CRM/Contact/BAO/Contact.php';
@@ -1077,7 +1104,8 @@ SELECT $select
                 default:
                     if ($field['data_type'] == "Float") {
                         $defaults[$elementName] = (float)$value;
-                    } elseif ($field['data_type'] == 'Money') {
+                    } elseif ($field['data_type'] == 'Money' &&
+                              $field['html_type'] == 'Text') {
                         require_once 'CRM/Utils/Money.php';
                         $defaults[$elementName] = CRM_Utils_Money::format($value, null, '%a');
                     } else { 
@@ -1273,7 +1301,7 @@ SELECT $select
             return;
         }
         
-        $groupTree   =& CRM_Core_BAO_CustomGroup::getTree( $type, $form );
+        $groupTree   = CRM_Core_BAO_CustomGroup::getTree( $type, $form );
         $customValue = array( );
         $htmlType    = array( 'CheckBox', 'Multi-Select', 'AdvMulti-Select', 'Select', 'Radio' );
         
@@ -1444,7 +1472,7 @@ SELECT IF( EXISTS(SELECT name FROM civicrm_contact_type WHERE name like %1), 1, 
                         );
 
         require_once 'CRM/Core/BAO/CustomField.php';
-        $tableParams =& CRM_Core_BAO_CustomField::defaultCustomTableSchema( $params );
+        $tableParams = CRM_Core_BAO_CustomField::defaultCustomTableSchema( $params );
 
         require_once 'CRM/Core/BAO/SchemaHandler.php';
         CRM_Core_BAO_SchemaHandler::createTable( $tableParams );
@@ -1623,7 +1651,9 @@ SELECT IF( EXISTS(SELECT name FROM civicrm_contact_type WHERE name like %1), 1, 
             $supportableFormats = array(
                                         'mm/dd'   => "%B %E%f $customTimeFormat",
                                         'dd-mm'   => "%E%f %B $customTimeFormat",
-                                        'yy'      => "%Y $customTimeFormat"
+                                        'yy'      => "%Y $customTimeFormat",
+                                        'M yy'    => "%b %Y $customTimeFormat",
+                                        'yy-mm'   => "%Y-%m $customTimeFormat",
                                         );
             if ( $format = CRM_Utils_Array::value( 'date_format', $field ) ) {
                 if ( array_key_exists( $format, $supportableFormats ) ) {

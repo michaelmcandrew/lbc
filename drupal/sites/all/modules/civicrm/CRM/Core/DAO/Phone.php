@@ -1,7 +1,7 @@
 <?php
 /*
 +--------------------------------------------------------------------+
-| CiviCRM version 4.0                                                |
+| CiviCRM version 4.1                                                |
 +--------------------------------------------------------------------+
 | Copyright CiviCRM LLC (c) 2004-2011                                |
 +--------------------------------------------------------------------+
@@ -58,7 +58,7 @@ class CRM_Core_DAO_Phone extends CRM_Core_DAO
     static $_links = null;
     /**
      * static instance to hold the values that can
-     * be imported / apu
+     * be imported
      *
      * @var array
      * @static
@@ -66,7 +66,7 @@ class CRM_Core_DAO_Phone extends CRM_Core_DAO
     static $_import = null;
     /**
      * static instance to hold the values that can
-     * be exported / apu
+     * be exported
      *
      * @var array
      * @static
@@ -122,6 +122,12 @@ class CRM_Core_DAO_Phone extends CRM_Core_DAO
      * @var string
      */
     public $phone;
+    /**
+     * Optional extension for a phone number.
+     *
+     * @var string
+     */
+    public $phone_ext;
     /**
      * Which type of phone does this number belongs.
      *
@@ -203,6 +209,17 @@ class CRM_Core_DAO_Phone extends CRM_Core_DAO
                     'dataPattern' => '/^[\d\(\)\-\.\s]+$/',
                     'export' => true,
                 ) ,
+                'phone_ext' => array(
+                    'name' => 'phone_ext',
+                    'type' => CRM_Utils_Type::T_STRING,
+                    'title' => ts('Phone Extension') ,
+                    'maxlength' => 16,
+                    'size' => CRM_Utils_Type::TWELVE,
+                    'export' => true,
+                    'where' => 'civicrm_phone.phone_ext',
+                    'headerPattern' => '/extension/i',
+                    'dataPattern' => '',
+                ) ,
                 'phone_type_id' => array(
                     'name' => 'phone_type_id',
                     'type' => CRM_Utils_Type::T_INT,
@@ -242,7 +259,7 @@ class CRM_Core_DAO_Phone extends CRM_Core_DAO
     {
         if (!(self::$_import)) {
             self::$_import = array();
-            $fields = & self::fields();
+            $fields = self::fields();
             foreach($fields as $name => $field) {
                 if (CRM_Utils_Array::value('import', $field)) {
                     if ($prefix) {
@@ -265,7 +282,7 @@ class CRM_Core_DAO_Phone extends CRM_Core_DAO
     {
         if (!(self::$_export)) {
             self::$_export = array();
-            $fields = & self::fields();
+            $fields = self::fields();
             foreach($fields as $name => $field) {
                 if (CRM_Utils_Array::value('export', $field)) {
                     if ($prefix) {

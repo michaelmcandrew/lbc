@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -59,42 +59,44 @@ class CRM_Admin_Page_Admin extends CRM_Core_Page
             CRM_Core_Session::setStatus( $errorMessage );
         }
 
-        $groups = array( 'Customize'    => ts( 'Customize' ),
-                         'Configure'    => ts( 'Configure' ),
-                         'Manage'       => ts( 'Manage'    ),
-                         'Option Lists' => ts( 'Option Lists' ) );
+        $groups = array( 'Customize Data and Screens'    => ts( 'Customize Data and Screens' ),
+                         'Communications'    => ts( 'Communications' ),
+                         'Localization'      => ts( 'Localizaton' ),
+                         'Users and Permissions' => ts( 'Users and Permissions' ),
+                         'System Settings'       => ts( 'System Settings' ),
+                          );
 
         $config = CRM_Core_Config::singleton( );
-        if ( in_array("CiviContribute", $config->enableComponents) ) {
+        if ( in_array('CiviContribute', $config->enableComponents) ) {
             $groups['CiviContribute'] = ts( 'CiviContribute' );
         }
         
-        if ( in_array("CiviMember", $config->enableComponents) ) {
+        if ( in_array('CiviMember', $config->enableComponents) ) {
             $groups['CiviMember'] = ts( 'CiviMember' );
         }
 
-        if ( in_array("CiviEvent", $config->enableComponents) ) {
+        if ( in_array('CiviEvent', $config->enableComponents) ) {
             $groups['CiviEvent'] = ts( 'CiviEvent' );
         }
 
-        if ( in_array("CiviMail", $config->enableComponents) ) {
+        if ( in_array('CiviMail', $config->enableComponents) ) {
             $groups['CiviMail'] = ts( 'CiviMail' );
         }
 
-        if ( in_array("CiviCase", $config->enableComponents) ) {
+        if ( in_array('CiviCase', $config->enableComponents) ) {
             $groups['CiviCase'] = ts( 'CiviCase' );
         }
         
-        if ( in_array("CiviReport", $config->enableComponents) ) {
+        if ( in_array('CiviReport', $config->enableComponents) ) {
             $groups['CiviReport'] = ts( 'CiviReport' );
         }
 
-        if ( in_array("CiviCampaign", $config->enableComponents) ) {
+        if ( in_array('CiviCampaign', $config->enableComponents) ) {
             $groups['CiviCampaign'] = ts( 'CiviCampaign' );
         }
 
         require_once 'CRM/Core/Menu.php';
-        $values =& CRM_Core_Menu::getAdminLinks( );
+        $values = CRM_Core_Menu::getAdminLinks( );
         
         require_once 'CRM/Core/ShowHideBlocks.php';
         $this->_showHide = new CRM_Core_ShowHideBlocks( );
@@ -108,7 +110,7 @@ class CRM_Admin_Page_Admin extends CRM_Core_Page
             $adminPanel[$group]['title'] = $title;
         }
         require_once 'CRM/Utils/VersionCheck.php';
-        $versionCheck =& CRM_Utils_VersionCheck::singleton();
+        $versionCheck = CRM_Utils_VersionCheck::singleton();
         $this->assign('newVersion',   $versionCheck->newerVersion());
         $this->assign('localVersion', $versionCheck->localVersion);
         $this->assign('adminPanel', $adminPanel);

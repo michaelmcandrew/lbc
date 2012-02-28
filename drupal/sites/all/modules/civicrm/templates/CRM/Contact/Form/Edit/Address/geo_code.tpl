@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -23,7 +23,7 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 *}
-{if $form.address.$blockId.geo_code_1 && $form.address.$blockId.geo_code_2}
+{if !empty($form.address.$blockId.geo_code_1) && !empty($form.address.$blockId.geo_code_2)}
     {capture assign=docLink}{docURL page="Mapping and Geocoding"}{/capture}
    <tr>
       <td colspan="2">

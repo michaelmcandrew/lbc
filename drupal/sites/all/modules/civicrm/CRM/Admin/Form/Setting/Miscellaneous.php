@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -49,7 +49,7 @@ class CRM_Admin_Form_Setting_Miscellaneous extends  CRM_Admin_Form_Setting
      * @access public
      */
     public function buildQuickForm( ) {
-        CRM_Utils_System::setTitle(ts('Settings - Miscellaneous'));
+        CRM_Utils_System::setTitle(ts('Settings - Undelete, Logging and ReCAPTCHA'));
 
         $this->addYesNo('contactUndelete', ts('Contact Trash & Undelete'));
 
@@ -65,7 +65,10 @@ class CRM_Admin_Form_Setting_Miscellaneous extends  CRM_Admin_Form_Setting
         $this->assign( 'validTriggerPermission', $validTriggerPermission );
         $this->addYesNo('logging', ts('Logging'), null, null, $attribs);
 
-        $this->addYesNo( 'versionCheck'           , ts( 'Version Check & Statistics Reporting' ));
+        $this->addYesNo( 'versionCheck', ts( 'Version Check & Statistics Reporting' ));
+        
+        $this->addYesNo( 'doNotAttachPDFReceipt', ts( 'Attach PDF copy to receipts' ) );
+        
         $this->addElement('text', 'maxAttachments' , ts('Maximum Attachments'),
                           array( 'size' => 2, 'maxlength' => 8 ) );
         $this->addElement('text', 'maxFileSize' , ts('Maximum File Size'),
@@ -77,15 +80,31 @@ class CRM_Admin_Form_Setting_Miscellaneous extends  CRM_Admin_Form_Setting
 
         $this->addElement('text', 'dashboardCacheTimeout', ts('Dashboard cache timeout'),
                           array( 'size' => 3, 'maxlength' => 5 ) );
+        $this->addElement('text', 'checksumTimeout' , ts('CheckSum Lifespan'),
+                          array( 'size' => 2, 'maxlength' => 8 ) );
         $this->addElement('text','recaptchaOptions', ts('Recaptcha Options'),
                           array( 'size' => 64, 'maxlength' => 64 ) );
 
         $this->addRule('maxAttachments', ts('Value should be a positive number') , 'positiveInteger');
         $this->addRule('maxFileSize', ts('Value should be a positive number') , 'positiveInteger');
+        $this->addRule('checksumTimeout', ts('Value should be a positive number') , 'positiveInteger');
        
         parent::buildQuickForm();    
     }
 
+    function setDefaultValues()
+    {
+        parent::setDefaultValues();
+
+        require_once 'CRM/Core/BAO/Setting.php';
+        $this->_defaults['checksumTimeout'] = 
+            CRM_Core_BAO_Setting::getItem( CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME,
+                                           'checksum_timeout',
+                                           null,
+                                           7 );
+        return $this->_defaults;
+    }
+            
     public function postProcess()
     {
         parent::postProcess();

@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -153,6 +153,9 @@
 <div id="view-related-cases">
      <div id="related-cases-content"></div>
 </div>
+
+<div class="clear"></div>
+{include file="CRM/Case/Page/CustomDataView.tpl"}            
 
 <div class="crm-accordion-wrapper crm-accordion_title-accordion crm-accordion-closed crm-case-roles-block">
  <div class="crm-accordion-header">
@@ -664,6 +667,7 @@ function addRole() {
 </script>
 {/literal}
 {include file="CRM/Case/Form/ActivityToCase.tpl"}
+{include file="CRM/Case/Form/ActivityChangeStatus.tpl"}
 
 {* pane to display / edit regular tags or tagsets for cases *}
 {if $showTags OR $showTagsets }
@@ -694,7 +698,7 @@ function addRole() {
 
   {if !$tagExits }
     <div class="status">
-        {ts}There are no tags currently assigend to this case.{/ts}
+        {ts}There are no tags currently assigned to this case.{/ts}
     </div>
   {/if}
 
@@ -706,9 +710,12 @@ function addRole() {
     <div id="manageTags">
         <div class="label">{$form.case_tag.label}</div>
         <div class="view-value"><div class="crm-select-container">{$form.case_tag.html}</div>
+        <br/>
         <div style="text-align:left;">{include file="CRM/common/Tag.tpl" tagsetType='case'}</div>
+        <br/>
+        <div class="clear"></div>
     </div>
-    </div>
+</div>
 
 {literal}
 <script type="text/javascript">
@@ -727,7 +734,8 @@ function addTags() {
     cj("#manageTags").dialog({
         title: "{/literal}{ts}Change Case Tags{/ts}{literal}",
         modal: true,
-        width: '550',
+        height: 'auto',
+        width: 'auto',
         buttons: { 
             "Save": function() { 
                 var tagsChecked = '';	    
@@ -958,6 +966,7 @@ function buildCaseActivities( filterSearch ) {
             "aoColumns"  : columns,
 	    	"bProcessing": true,
             "bJQueryUI": true,
+            "asStripClasses" : [ "odd-row", "even-row" ],
             "sPaginationType": "full_numbers",
             "sDom"       : '<"crm-datatable-pager-top"lfp>rt<"crm-datatable-pager-bottom"ip>',	
             "bServerSide": true,
@@ -997,12 +1006,15 @@ function setSelectorClass( ) {
     });
 }
 
-function printCaseReport( ){
- 
- 	var dataUrl = {/literal}"{crmURL p='civicrm/case/report/print' q='all=1'}"{literal};
- 	dataUrl     = dataUrl+ '&cid={/literal}{$contactID}{literal}' 
-                      +'&caseID={/literal}{$caseID}{literal}';
-        window.location = dataUrl;
+function printCaseReport( ) {
+
+    var asn = 'standard_timeline';
+    var dataUrl = {/literal}"{crmURL p='civicrm/case/report/print' q='all=1&redact=0' h='0'}"{literal};
+    dataUrl     = dataUrl + '&cid={/literal}{$contactID}{literal}' 
+                  + '&caseID={/literal}{$caseID}{literal}'
+                  + '&asn={/literal}' + asn + '{literal}';
+
+    window.location = dataUrl;
 }
 	
 </script>

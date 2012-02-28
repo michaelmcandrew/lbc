@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.4                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -62,10 +62,10 @@ function _civicrm_api3_permissions($entity, $action, &$params)
             'update' => array('access CiviCRM', 'access CiviContribute', 'edit contributions'),
         ),
         'custom_field' => array(
-            'create' => array('access CiviCRM', 'access all custom data'),
-            'delete' => array('access CiviCRM', 'access all custom data'),
-            'get'    => array('access CiviCRM', 'access all custom data'),
-            'update' => array('access CiviCRM', 'access all custom data'),
+            'create' => array('administer CiviCRM', 'access CiviCRM', 'access all custom data'),
+            'delete' => array('administer CiviCRM', 'access CiviCRM', 'access all custom data'),
+            'get'    => array('administer CiviCRM', 'access CiviCRM', 'access all custom data'),
+            'update' => array('administer CiviCRM', 'access CiviCRM', 'access all custom data'),
         ),
         'custom_group' => array(
             'create' => array('administer CiviCRM', 'access CiviCRM', 'access all custom data'),

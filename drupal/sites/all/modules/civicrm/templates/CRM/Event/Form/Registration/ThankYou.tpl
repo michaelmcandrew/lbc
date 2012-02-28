@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -44,8 +44,15 @@
         <div id="tell-a-friend" class="crm-section tell_friend_link-section">
             <a href="{$friendURL}" title="{$friendText}" class="button"><span>&raquo; {$friendText}</span></a>
        </div><br /><br />
-    {/if}  
+    {/if}
 
+    {* Add button for donor to create their own Personal Campaign page *}
+    {if $pcpLink}
+      <div class="crm-section create_pcp_link-section">
+            <a href="{$pcpLink}" title="{$pcpLinkText}" class="button"><span>&raquo; {$pcpLinkText}</span></a>
+        </div><br /><br />
+    {/if}
+    
     <div id="help">
         {if $isOnWaitlist}
             <p>
@@ -171,63 +178,52 @@
     {/if}
 
     {if $customPre}
-        {foreach from=$customPre item=field key=customName}
-            {if $field.groupTitle}
-                {assign var=groupTitlePre  value=$field.groupTitle} 
-            {/if}
-        {/foreach}
-    	<div class="crm-group {$groupTitlePre}-group">
-            <div class="header-dark">
-    	        {$groupTitlePre}
-            </div>
             <fieldset class="label-left">
                 {include file="CRM/UF/Form/Block.tpl" fields=$customPre}
             </fieldset>
-        </div>
     {/if}
 
     {if $customPost}
-        {foreach from=$customPost item=field key=customName}
-            {if $field.groupTitle}
-                {assign var=groupTitlePost  value=$field.groupTitle} 
-            {/if}
-        {/foreach}
-    	<div class="crm-group {$groupTitlePost}-group">
-            <div class="header-dark">
-                {$groupTitlePost}
-            </div>
             <fieldset class="label-left">  
                 {include file="CRM/UF/Form/Block.tpl" fields=$customPost}
             </fieldset>
-        </div>
     {/if}
 
-    {*display Additional Participant Info*}
-    {if $customProfile}
-        {foreach from=$customProfile item=value key=customName}
+    {*display Additional Participant Profile Information*}
+    {if $addParticipantProfile}
+        {foreach from=$addParticipantProfile item=participant key=participantNo}
             <div class="crm-group participant_info-group">
                 <div class="header-dark">
-                    {ts 1=$customName+1}Participant Information - Participant %1{/ts}	
+                    {ts 1=$participantNo+1}Participant Information - Participant %1{/ts}	
                 </div>
-                {foreach from=$value item=val key=field}
-                    {if $field eq additionalCustomPre or $field eq additionalCustomPost }
-                        {if $field eq 'additionalCustomPre' }
-                            <fieldset class="label-left"><legend>{$value.additionalCustomPre_grouptitle}</legend>
-                        {else}
-                            <fieldset class="label-left"><legend>{$value.additionalCustomPost_grouptitle}</legend>
-                        {/if}
-                        <table class="form-layout-compressed">	
-                        {foreach from=$val item=v key=f}
-                            <tr>
-                                <td class="label twenty">{$f}</td><td class="view-value">{$v}</td>
-                            </tr>
+                {if $participant.additionalCustomPre}
+		    <fieldset class="label-left"><div class="header-dark">{$participant.additionalCustomPreGroupTitle}</div>	
+                        {foreach from=$participant.additionalCustomPre item=value key=field}
+                            <div class="crm-section {$field}-section">
+                                <div class="label">{$field}</div>
+                                <div class="content">{$value}</div>
+                                <div class="clear"></div>
+                            </div>
                         {/foreach}
-                        </table>
-                        </fieldset>
-                    {/if}
-                <div>
-            {/foreach}
-            <div class="spacer"></div>  
+                    </fieldset>
+                {/if}
+
+                {if $participant.additionalCustomPost}
+		{foreach from=$participant.additionalCustomPost item=value key=field}
+		<fieldset class="label-left"><div class="header-dark">{$participant.additionalCustomPostGroupTitle.$field.groupTitle}</div>
+                        {foreach from=$participant.additionalCustomPost.$field item=value key=field}
+                            <div class="crm-section {$field}-section">
+                                <div class="label">{$field}</div>
+                                <div class="content">{$value}</div>
+                                <div class="clear"></div>
+                            </div>
+                        {/foreach}		 
+		{/foreach}		
+
+                    </fieldset>
+                {/if}
+            </div>
+        <div class="spacer"></div>
         {/foreach}
     {/if}
 
@@ -273,5 +269,9 @@
 
     {if $event.is_public }
         {include file="CRM/Event/Page/iCalLinks.tpl"}
-    {/if} 
+    {/if}
+    {if $event.is_share}
+    {capture assign=eventUrl}{crmURL p='civicrm/event/info' q="id=`$event.id`&amp;reset=1" a=true fe=1 h=1}{/capture}
+    {include file="CRM/common/SocialNetwork.tpl" url=$eventUrl title=$event.title pageURL=$eventUrl}
+    {/if}
 </div>

@@ -261,7 +261,7 @@ installed package.'
                 require_once 'PEAR/PackageFile.php';
             }
 
-            $pkg = &new PEAR_PackageFile($this->config, $this->_debug);
+            $pkg = new PEAR_PackageFile($this->config, $this->_debug);
             PEAR::staticPushErrorHandling(PEAR_ERROR_RETURN);
             $info = &$pkg->fromAnyFile($params[0], PEAR_VALIDATE_NORMAL);
             PEAR::staticPopErrorHandling();
@@ -349,7 +349,7 @@ installed package.'
             foreach ($list['dir']['file'] as $att) {
                 $att = $att['attribs'];
                 $file = $att['name'];
-                $role = &PEAR_Installer_Role::factory($info, $att['role'], $this->config);
+                $role = PEAR_Installer_Role::factory($info, $att['role'], $this->config);
                 $role->setup($this, $info, $att, $file);
                 if (!$role->isInstallable()) {
                     $dest = '(not installable)';
@@ -433,7 +433,7 @@ installed package.'
                 require_once 'PEAR/PackageFile.php';
             }
 
-            $pkg = &new PEAR_PackageFile($this->config, $this->_debug);
+            $pkg = new PEAR_PackageFile($this->config, $this->_debug);
             PEAR::staticPushErrorHandling(PEAR_ERROR_RETURN);
             $obj = &$pkg->fromAnyFile($params[0], PEAR_VALIDATE_NORMAL);
             PEAR::staticPopErrorHandling();

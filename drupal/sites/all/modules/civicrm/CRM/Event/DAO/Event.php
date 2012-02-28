@@ -1,7 +1,7 @@
 <?php
 /*
 +--------------------------------------------------------------------+
-| CiviCRM version 4.0                                                |
+| CiviCRM version 4.1                                                |
 +--------------------------------------------------------------------+
 | Copyright CiviCRM LLC (c) 2004-2011                                |
 +--------------------------------------------------------------------+
@@ -58,7 +58,7 @@ class CRM_Event_DAO_Event extends CRM_Core_DAO
     static $_links = null;
     /**
      * static instance to hold the values that can
-     * be imported / apu
+     * be imported
      *
      * @var array
      * @static
@@ -66,7 +66,7 @@ class CRM_Event_DAO_Event extends CRM_Core_DAO
     static $_import = null;
     /**
      * static instance to hold the values that can
-     * be exported / apu
+     * be exported
      *
      * @var array
      * @static
@@ -173,14 +173,8 @@ class CRM_Event_DAO_Event extends CRM_Core_DAO
     /**
      * Is this a PAID event? If true, one or more fee amounts must be set and a Payment Processor must be configured for Online Event Registration.
      *
-     * @var text
-     */
-    public $is_fully_booked;
-    /**
-     * Is this a PAID event? If true, one or more fee amounts must be set and a Payment Processor must be configured for Online Event Registration.
-     *
      * @var boolean
-     */ 
+     */
     public $is_monetary;
     /**
      * Contribution type assigned to paid event registrations for this event. Required if is_monetary is true.
@@ -422,6 +416,24 @@ class CRM_Event_DAO_Event extends CRM_Core_DAO
      */
     public $campaign_id;
     /**
+     * Can people share the event through social media?
+     *
+     * @var boolean
+     */
+    public $is_share;
+    /**
+     * Implicit FK to civicrm_event: parent event
+     *
+     * @var int unsigned
+     */
+    public $parent_event_id;
+    /**
+     * Subevent slot label. Implicit FK to civicrm_option_value where option_group = conference_slot.
+     *
+     * @var int unsigned
+     */
+    public $slot_label_id;
+    /**
      * class constructor
      *
      * @access public
@@ -560,10 +572,6 @@ class CRM_Event_DAO_Event extends CRM_Core_DAO
                     'title' => ts('Event Information') ,
                     'rows' => 4,
                     'cols' => 60,
-                ) ,
-                'is_fully_booked' => array(
-                    'name' => 'is_fully_booked',
-                    'type' => CRM_Utils_Type::T_BOOLEAN,
                 ) ,
                 'is_monetary' => array(
                     'name' => 'is_monetary',
@@ -821,6 +829,22 @@ class CRM_Event_DAO_Event extends CRM_Core_DAO
                     'type' => CRM_Utils_Type::T_INT,
                     'FKClassName' => 'CRM_Campaign_DAO_Campaign',
                 ) ,
+                'is_share' => array(
+                    'name' => 'is_share',
+                    'type' => CRM_Utils_Type::T_BOOLEAN,
+                    'default' => '',
+                ) ,
+                'parent_event_id' => array(
+                    'name' => 'parent_event_id',
+                    'type' => CRM_Utils_Type::T_INT,
+                    'default' => 'UL',
+                ) ,
+                'slot_label_id' => array(
+                    'name' => 'slot_label_id',
+                    'type' => CRM_Utils_Type::T_INT,
+                    'title' => ts('Subevent Slot Label ID') ,
+                    'default' => 'UL',
+                ) ,
             );
         }
         return self::$_fields;
@@ -833,8 +857,7 @@ class CRM_Event_DAO_Event extends CRM_Core_DAO
      */
     function getTableName()
     {
-        global $dbLocale;
-        return self::$_tableName . $dbLocale;
+        return CRM_Core_DAO::getLocaleTableName(self::$_tableName);
     }
     /**
      * returns if this table needs to be logged
@@ -856,7 +879,7 @@ class CRM_Event_DAO_Event extends CRM_Core_DAO
     {
         if (!(self::$_import)) {
             self::$_import = array();
-            $fields = & self::fields();
+            $fields = self::fields();
             foreach($fields as $name => $field) {
                 if (CRM_Utils_Array::value('import', $field)) {
                     if ($prefix) {
@@ -879,7 +902,7 @@ class CRM_Event_DAO_Event extends CRM_Core_DAO
     {
         if (!(self::$_export)) {
             self::$_export = array();
-            $fields = & self::fields();
+            $fields = self::fields();
             foreach($fields as $name => $field) {
                 if (CRM_Utils_Array::value('export', $field)) {
                     if ($prefix) {

@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -118,6 +118,11 @@ class CRM_Report_Form_Contribute_Bookkeeping extends CRM_Report_Form {
                                     array( 'title'        => ts( 'Contribution Type' ), 
                                            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
                                            'options'      => CRM_Contribute_PseudoConstant::contributionType( )
+                                         ),
+                                 'payment_instrument_id'   =>
+                                    array( 'title'        => ts( 'Paid By' ), 
+                                           'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+                                           'options'      => CRM_Contribute_PseudoConstant::paymentInstrument( )
                                          ),
                                 'contribution_status_id' => 
                                     array( 'title'        => ts( 'Contribution Status' ), 

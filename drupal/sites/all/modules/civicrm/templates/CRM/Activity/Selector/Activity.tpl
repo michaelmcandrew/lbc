@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.0                                                |
+ | CiviCRM version 4.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
@@ -26,7 +26,7 @@
 {* Displays Activities. *}
 
 <div>
-  {if !$noFieldSet}	
+  {if empty($noFieldSet)}	
   <h3 class="crm-table-title">{ts}Activities{/ts}</h3>
   {/if}
 {if $rows}
