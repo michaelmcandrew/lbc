@@ -34,9 +34,9 @@ function LBChooks_block_info() {
 }
 
 function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
-	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-	error_log('> '.$op.' '.$objectName, 0);
-	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log('> '.$op.' '.$objectName, 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
 	if ($op == 'edit' && $objectName == 'Event') {
 		require_once 'api/api.php';
 		$result = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3));
@@ -122,12 +122,12 @@ function DeleteSolitaryRetreatsIntersecting(&$event) {
 	$start_date_int=$start_date->getTimestamp();
 	civicrm_api('Event','Delete',array('id' => $event['id'], 'version' =>3));
 	$result = civicrm_api( 'event','get',$params_get );
-	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-	error_log('$params_get='.print_r($params_get,true), 0);
-	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-	error_log('$result='.print_r($result,true), 0);
-	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log('$params_get='.print_r($params_get,true), 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log('$result='.print_r($result,true), 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
 	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
 	//error_log('Deleting retreats from '.$start_date_int.' until '.$end_date_int, 0);
 
