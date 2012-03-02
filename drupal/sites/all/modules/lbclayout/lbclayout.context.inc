@@ -44,9 +44,9 @@ function lbclayout_context_default_contexts() {
           'region' => 'sidebar_first',
           'weight' => '-9',
         ),
-        'views-banner-block_1' => array(
+        'views-banner-banner_block' => array(
           'module' => 'views',
-          'delta' => 'banner-block_1',
+          'delta' => 'banner-banner_block',
           'region' => 'navigation',
           'weight' => '-10',
         ),
