@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the LBC layout feature.
+ */
+
+include_once('lbc_layout.features.inc');

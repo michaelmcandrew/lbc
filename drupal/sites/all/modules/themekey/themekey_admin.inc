@@ -29,16 +29,12 @@ require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'themekey') . '/theme
  * @ingroup forms
  */
 function themekey_rule_chain_form($form, &$form_state) {
-  // BACKPORT
-  if (!empty($form_state['submitted']) || stripos($form_state['method'], 'post') !== FALSE) {
-    // scan for new properties provided by other modules
-    themekey_rebuild();
-  }
-
   $properties = variable_get('themekey_properties', array());
 
   if (empty($properties)) {
-    drupal_goto('admin/config/user-interface/themekey/settings');
+    // first call of this form ever
+    themekey_rebuild();
+    $properties = variable_get('themekey_properties', array());
   }
 
   $themes = themekey_theme_options(TRUE, TRUE);
@@ -46,11 +42,14 @@ function themekey_rule_chain_form($form, &$form_state) {
   $operators = array(
     '=' => '=',
     '!' => '!',
+    '*' => '*',
+    '!*' => '!*',
     '<' => '<',
     '<=' => '<=',
     '>' => '>',
     '>=' => '>=',
     '~' => '~',
+    '!~' => '!~',
   );
 
   $form = array('#tree' => TRUE);
@@ -280,6 +279,18 @@ function themekey_rule_chain_form_validate(&$form, $form_state) {
             form_set_error('old_items][' . $key_1 . '][property', filter_xss(t('ThemeKey requested an unknown validator called %validator to validate property %property', array('%validator' => $validator, '%property' => $value_1['property'])), array('em')));
           }
         }
+        elseif ('~' == $value_1['operator'] || '!~' == $value_1['operator']) {
+          $rule = array(
+            'property' => $value_1['property'],
+            'wildcard' => $value_1['wildcard'],
+            'operator' => $value_1['operator'],
+            'value' => $value_1['value'],
+          );
+          $errors = themekey_validator_regex($rule);
+          foreach ($errors as $element => $msg) {
+            form_set_error('old_items][' . $key_1 . '][' . $element, filter_xss($msg, array('em')));
+          }
+        }
       }
 
       foreach ($values['old_items'] as $key_2 => $value_2) {
@@ -384,6 +395,18 @@ function themekey_rule_chain_form_validate(&$form, $form_state) {
           form_set_error('new_item][property', filter_xss(t('ThemeKey requested an unknown validator called %validator to validate the property, %property', array('%validator' => $validator, '%property' => $value_1['property']))), array('em'));
         }
       }
+      elseif ('~' == $values['new_item']['operator'] || '!~' == $values['new_item']['operator']) {
+        $rule = array(
+                  'property' => $value_1['property'],
+                  'wildcard' => $value_1['wildcard'],
+                  'operator' => $value_1['operator'],
+                  'value' => $value_1['value'],
+        );
+        $errors = themekey_validator_regex($rule);
+        foreach ($errors as $element => $msg) {
+          form_set_error('new_item][' . $element, filter_xss($msg, array('em')));
+        }
+      }
     }
   }
 }
@@ -461,13 +484,6 @@ function themekey_settings_form($form, &$form_state) {
     '#title' => t('Provide all themes for selection'),
     '#default_value' => variable_get('themekey_allthemes', 0),
     '#description' => t('Make all installed themes available for selection, not enabled ones only.'),
-  );
-
-  $form['settings']['themekey_override_custom_theme'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Force custom theme overriding'),
-    '#default_value' => variable_get('themekey_override_custom_theme', 0),
-    '#description' => t('Select this option to force ThemeKey to set the custom theme. Otherwise ThemeKey will set the custom theme only if it\'s not already set by a different module.<br /><b>Note: If you activate this feature it turns off theme switching of some other modules like Organic Groups.</b>'),
   );
 
   $form['settings']['themekey_theme_maintain'] = array(
@@ -805,7 +821,6 @@ function theme_themekey_page_cache_icon($variables) {
   }
 
   return '<img src="/' . $module_path . '/img/page_cache_' . $page_cache_support . '.png" width="16" height="16" title="' . htmlentities(strip_tags($page_cache_support_desriptions[$page_cache_support]), ENT_COMPAT, 'UTF-8') . '"></img>';
-
 }
 
 
