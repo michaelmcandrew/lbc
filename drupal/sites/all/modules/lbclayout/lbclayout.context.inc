@@ -20,6 +20,8 @@ function lbclayout_context_default_contexts() {
     'path' => array(
       'values' => array(
         '*' => '*',
+        '~*admin*' => '~*admin*',
+        '~civicrm' => '~civicrm',
       ),
     ),
   );
