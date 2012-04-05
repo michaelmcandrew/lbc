@@ -34,9 +34,9 @@ function LBChooks_block_info() {
 }
 
 function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
-	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-	//error_log('> '.$op.' '.$objectName, 0);
-	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	error_log('> '.$op.' '.$objectName, 0);
+	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
 	if ($op == 'edit' && $objectName == 'Event') {
 		require_once 'api/api.php';
 		$result = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3));
@@ -112,7 +112,7 @@ function DeleteSolitaryRetreatsIntersecting(&$event) {
 	$params_get = array(
         'title' => $event['title'],
 		'version'=>3,
-		'return.max_results' => 208
+		'return.max_results' => 512
 	);
 	$end_date_text=$event['end_date'];
 	$end_date=date_create($end_date_text);
@@ -141,7 +141,7 @@ function DeleteSolitaryRetreatsIntersecting(&$event) {
 		$this_start_date_int=$this_start_date->getTimestamp();
 		//error_log('Consider '.$this_start_date_int.' until '.$this_end_date_int, 0);
 		if (($this_start_date_int>=$start_date_int)&&($this_end_date_int<=$end_date_int)) {
-			if ($value['title']==$event['title']) { //API BUG? not sure why API is returning all events
+			if ($value['title']==$event['title'] || $event['title']=="*") { //API BUG? not sure why API is returning all events
 				civicrm_api('Event','Delete',array('id' => $value['id'], 'version' =>3));
 			}
 			//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
