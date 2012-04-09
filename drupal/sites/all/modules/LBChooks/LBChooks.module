@@ -34,9 +34,9 @@ function LBChooks_block_info() {
 }
 
 function LBChooks_civicrm_post($op, $objectName, $objectId, &$objectRef) {
-	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
-	error_log('> '.$op.' '.$objectName, 0);
-	error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
+	//error_log('> '.$op.' '.$objectName, 0);
+	//error_log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", 0);
 	if ($op == 'edit' && $objectName == 'Event') {
 		require_once 'api/api.php';
 		$result = civicrm_api('Event','Get',array('id' => $objectId, 'version' =>3));
