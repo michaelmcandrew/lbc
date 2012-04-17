@@ -10,7 +10,7 @@
 function lbc_layout_context_default_contexts() {
   $export = array();
 
-  $context = new stdClass;
+  $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'lbc_content';
@@ -73,7 +73,7 @@ function lbc_layout_context_default_contexts() {
   t('Overall layout for all LBC content pages');
   $export['lbc_content'] = $context;
 
-  $context = new stdClass;
+  $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'lbc_permalinks';
@@ -84,7 +84,7 @@ function lbc_layout_context_default_contexts() {
       'values' => array(
         '*' => '*',
         '~*admin*' => '~*admin*',
-        '~civicrm' => '~civicrm',
+        '~civicrm/*' => '~civicrm/*',
       ),
     ),
   );
@@ -107,7 +107,7 @@ function lbc_layout_context_default_contexts() {
   t('For all pages that require AddThis buttons excluding civicrm which adds its own share where needed');
   $export['lbc_permalinks'] = $context;
 
-  $context = new stdClass;
+  $context = new stdClass();
   $context->disabled = FALSE; /* Edit this to true to make a default context disabled initially */
   $context->api_version = 3;
   $context->name = 'lbc_retreat_booking';
